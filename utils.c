@@ -16,7 +16,7 @@ inline void dump_word_bin(unsigned long * p)
 	printf("%s\n", tmp);
 }
 
-inline void dummp_inst(inst_t i)
+inline void dump_inst(inst_t i)
 {
 	printf("op:%d, rs:%d, rt:%d, rd:%d, cnst:%d\n", 
 	       i.op,   i.rs,  i.rt,  i.rd,  i.cnst);
