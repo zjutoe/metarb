@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 	i1.op = 8;
 	i1.rs = 1;
 	i1.rt = 3;
-	i1.cnst = 33;
+	i1.imm = 33;
 
 	void *p;
 	p = &i0;
@@ -24,6 +24,11 @@ int main(int argc, char* argv[])
 	p = &i1;
 	printf ("i1 = 0x%x\n", *(unsigned int*)p);
 	dump_inst(i1);
+
+	init_cores(1);
+	core_p core = get_core(0);
+	exec_ADD(core, i0);
+	exec_ADDI(core, i1);
 	
 	return 0;
 }

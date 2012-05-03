@@ -1,6 +1,8 @@
 sim: main.o core.o utils.o
 	cc -o sim main.o core.o utils.o
 
+main.o core.o : utils.h
+
 .PHONY: clean
 
 clean:

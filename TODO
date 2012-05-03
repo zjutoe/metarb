@@ -1,1 +1,2 @@
-1. a building system in lua
+1. a building system in lua; now use makefile 1st
+2. a logging system
