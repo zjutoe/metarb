@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "core.h"
+#include "inst.h"
 #include "utils.h"
 
 int main(int argc, char* argv[])

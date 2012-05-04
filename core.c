@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
+#include "logging.h"
 #include "utils.h"
 #include "core.h"
 
@@ -10,6 +12,8 @@ static int core_num;
 
 void core_init(core_p core, int id)
 {
+	LOG_T
+
 	assert(id>=0 && id<MAX_CORE_NUM);
 
 	core->id = id;
@@ -18,11 +22,13 @@ void core_init(core_p core, int id)
 
 int init_cores(int num)
 {
+	LOG_T
+
 	assert(num <= MAX_CORE_NUM && num > 0);
 
 	core_p p = NULL;
 	p = malloc(sizeof(core_t) * num);
-	dieif(p == NULL, "Out Of Memory, failed to allocate cores...");
+	DIE_IF(p == NULL, "Out Of Memory, failed to allocate cores...");
 	
 	int i;
 	for (i=0; i<num; i++) {
@@ -37,18 +43,20 @@ int init_cores(int num)
 
 core_p get_core(int id)
 {
+	LOG_T
+
 	assert(id>=0 && id<=core_num);
 
 	return cores[id];
 }
 
 
-#define RtypeRegs(inst)				\
+#define R_TYPE_REGS(inst)			\
 	int s = inst.rs;			\
 	int t = inst.rt;			\
 	int d = inst.rd;
 
-#define ItypeRegs(inst)				\
+#define I_TYPE_REGS(inst)			\
 	int imm = inst.imm;			\
 	int s = inst.rs;			\
 	int t = inst.rt;
@@ -58,12 +66,19 @@ core_p get_core(int id)
  */
 inline int exec_ADD(core_t core, inst_t inst)
 {
-	RtypeRegs(inst);
+	LOG_T
+
+	/* This macro will initialize s, t & d */
+	R_TYPE_REGS(inst);
 	core.r[d] = core.r[s] + core.r[t];
 }
 
 inline int exec_ADDI(core_t core, inst_t inst)
 {
-	ItypeRegs(inst);
+	LOG_T
+
+	/* This macro will initialize s, t & imm */
+	I_TYPE_REGS(inst);
 	core.r[t] = core.r[s] + imm;
 }
+

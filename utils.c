@@ -1,4 +1,7 @@
 #include <stdio.h>
+
+#include "utils.h"
+#include "inst.h"
 #include "core.h"
 
 inline void dump_word_bin(unsigned long * p) 
