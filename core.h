@@ -25,5 +25,7 @@ typedef struct _core {
 extern void core_init(core_p core, int id);
 extern core_p get_core(int id);
 
+extern inline uint32_t get_reg(core_p core, int rid);
+extern inline     void set_reg(core_p core, int rid, uint32_t v);
 
 #endif	/* _CORE_H */

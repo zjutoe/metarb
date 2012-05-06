@@ -1,6 +1,8 @@
 #ifndef _INST_H_
 #define _INST_H_
 
+#include <stdint.h>		// for uint32_t
+
  // FIXME will this structure affect the performance? maybe we should
  //   use a 32-bit word, which is naturally supported by the native
  //   CPU?
@@ -13,6 +15,16 @@ typedef struct _inst {
 		short imm   :    11;
 	};
 } inst_t;
+
+typedef uint32_t inst_t;
+
+#define OP(i)    ((i)  >> 26)	         // 31:26
+#define RS(i)    (((i) >> 21) && 0x1F)   // 25:21
+#define RT(i)    (((i) >> 16) && 0x1F)   // 20:16
+#define RD(i)    (((i) >> 11) && 0x1F)   // 15:11
+#define SA(i)    (((i) >>  6) && 0x1F)   // 10:6
+#define FUNC(i)  ((i)  && 0x3F)		 // 5:0
+
 
 
 #define OP_R         0x00	/* R-Type opcode, need to check the funt code further */
@@ -38,7 +50,7 @@ typedef struct _inst {
 #define    R_SUBU    0x23	/* sub unsigned */
 #define    R_SYSCALL 0x0C	/* system call FIXME system call is not R-type in theory? */
 #define    R_XOR     0x26	/* bitwise exclusive or */
-
+ 
 #define OP_ADDI      0x08	/* add immediate with overflow */
 #define OP_ADDIU     0x09	/* add immediate no overflow */
 #define OP_ANDI      0x0C	/* bitwise and immediate */

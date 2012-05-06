@@ -50,6 +50,23 @@ core_p get_core(int id)
 	return cores[id];
 }
 
+inline uint32_t get_reg(core_p core, int rid)
+{
+	assert(rid >= 0 && rid < MAX_REG_NUM);
+	if (rid == 0)		// $0 is always 0
+		return 0;
+	return core->r[rid];
+}
+
+inline void set_reg(core_p core, int rid, uint32_t v)
+{
+	assert(rid >= 0 && rid < MAX_REG_NUM);
+	if (rid == 0)		// $0 is always 0, never written
+		return;
+	core->r[rid] = v;
+}
+
+
 
 #define R_TYPE_REGS(inst)			\
 	int s = inst.rs;			\
