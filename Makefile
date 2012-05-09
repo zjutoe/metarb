@@ -1,7 +1,9 @@
-sim: main.o core.o utils.o test.o
-	cc -o sim main.o core.o utils.o test.o
+CFLAGS := -DDEBUG
 
-main.o core.o utils.o test.o : utils.h logging.h
+sim: main.o core.o utils.o test.o
+	cc $(CFLAGS) -o sim main.o core.o utils.o test.o
+
+main.o core.o utils.o test.o : utils.h logging.h inst.h test.h
 
 .PHONY: clean
 

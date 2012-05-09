@@ -5,7 +5,7 @@
 
 #include "utils.h"
 
-#define INIT_LOG openlog("metarb", 0, 0);
+#define INIT_LOG openlog("metarb", LOG_CONS, 0);
 #define FINI_LOG closelog();
 
 /* FIXME to allow more parameters from user */
@@ -13,42 +13,47 @@
 /* To trace in very detailed level. Usually will appear many times in
    every function */
 
-#define LOG_T       syslog(LOG_DEBUG,				\
-			   "[T] %s:%s:%d\n",			\
-			   __FILE__, __FUNCTION__, __LINE__);
+
+#define WHERESTR  " %s:%s:%d"
+#define WHEREARG  __FILE__, __FUNCTION__, __LINE__
+
+
+#define LOG_T							\
+	syslog(LOG_DEBUG,					\
+	       "[T] " WHERESTR "\n",				\
+	       WHEREARG);
 
 
 /* Debug log. Put in Ad hoc way */
+#define LOG_D(_fmt, ...)						\
+	syslog(LOG_DEBUG,						\
+	       "[D] " _fmt WHERESTR "\n",				\
+	       __VA_ARGS__, WHEREARG)
 
-#define LOG_D(msg)  syslog(LOG_DEBUG,					\
-			   "[D] %s  %s:%s:%d\n",			\
-			   msg, __FILE__, __FUNCTION__, __LINE__)
 
 
 /* informative log. Show to user */
-
-#define LOG_I(msg)				   \
-	do {					   \
-		syslog(LOG_INFO, "[I] %s\n", msg); \
-		printf("[I] %s\n", msg);	   \
+#define LOG_I(_fmt, ...)					 \
+	do {							 \
+		syslog(LOG_INFO, "[I] " _fmt "\n", __VA_ARGS__); \
+		printf("[I] " _fmt "\n", __VA_ARGS__);		 \
 	} while(0)
 
 
 /* Error */
-
-#define LOG_E(msg)							\
+#define LOG_E(_fmt, ...)						\
 	do {								\
-		syslog(LOG_ERR, "[E] %s %s\n", msg, __FUNCTION__);	\
-		printf(         "[E] %s %s\n", msg, __FUNCTION__);	\
+		syslog(3, "[E] " _fmt WHERESTR "\n", __VA_ARGS__, WHEREARG); \
+		printf( "[E] " _fmt WHERESTR "\n", __VA_ARGS__, WHEREARG); \
 	} while(0)
 
 
-/* Critical Error */
 
-#define LOG_C(msg)							\
+/* Critical Error */
+#define LOG_C(_fmt, ...)						\
 	do {								\
-		syslog(LOG_CRIT,   "[!] %s %s\n", msg, __FUNCTION__);	\
-		printf(            "[!] %s %s\n", msg, __FUNCTION__);	\
+		syslog(2,"[!] " _fmt WHERESTR "\n", __VA_ARGS__, WHEREARG); \
+		printf(  "[!] " _fmt WHERESTR "\n", __VA_ARGS__, WHEREARG); \
 	} while(0)
 
 
@@ -57,13 +62,13 @@
    before we have a more formal error handling system let's just put
    it here. */
 
-#define DIE_IF(cond, msg)				\
-	do{						\
-		if(unlikely(cond)){			\
-			LOG_C(msg);			\
-			exit(1);			\
-		}					\
-	}while(0)
+// #define DIE_IF(cond, _fmg, ...)				\
+// 	do{						\
+// 		if(unlikely(cond)){			\
+// 			LOG_C(msg);			\
+// 			exit(1);			\
+// 		}					\
+// 	}while(0)
 
 
 

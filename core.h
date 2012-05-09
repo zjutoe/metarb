@@ -25,9 +25,8 @@ typedef struct _core {
 
 } core_t, *core_p;
 
-//typedef core_t* core_p;
 
-extern void core_init(core_p core, int id);
+extern int init_cores(int num);
 extern core_p get_core(int id);
 
 extern inline uint32_t get_reg(core_p core, int rid);

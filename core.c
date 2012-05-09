@@ -10,7 +10,7 @@
 static core_p cores[MAX_CORE_NUM];
 static int core_num;
 
-void core_init(core_p core, int id)
+static void core_init(core_p core, int id)
 {
 	LOG_T
 
@@ -22,13 +22,19 @@ void core_init(core_p core, int id)
 
 int init_cores(int num)
 {
-	LOG_T
+	LOG_T;
 
-	assert(num <= MAX_CORE_NUM && num > 0);
+	if (num > MAX_CORE_NUM || num <= 0) {
+		LOG_E("Trying to initialzie invalid number %d of cores", num);
+		return -1;
+	}
 
 	core_p p = NULL;
 	p = malloc(sizeof(core_t) * num);
-	DIE_IF(p == NULL, "Out Of Memory, failed to allocate cores...");
+	if (unlikely(1 || p == NULL)) {
+		LOG_C("Out Of Memory, failed to allocate %d cores...", num);
+		exit(1);
+	}
 	
 	int i;
 	for (i=0; i<num; i++) {
