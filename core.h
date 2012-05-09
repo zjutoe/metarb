@@ -1,9 +1,14 @@
 #ifndef _CORE_H
 #define _CORE_H
 
+#include <stdint.h>
+
 #define MAX_CORE_NUM 256
 
-#define r0    0
+#define REG_ZERO     0
+#define REG_PC       32
+#define REG_OVERFLOW 33
+#define MAX_REG_NUM  34
 
 
 /* A MIPS core */

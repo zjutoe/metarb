@@ -31,14 +31,16 @@ int test_r_type(core_p core, inst_t inst)
 	int sa   = SA(inst);
 	int func = FUNC(inst);
 
+	uint64_t s, t, d;
+
 	assert (op == 0);
 	assert (core);
 
 	switch (func) {
 	case    R_ADD:		// add signed (with overflow) 
-		uint64_t s = get_reg(core, rs);
-		uint64_t t = get_reg(core, rt);
-		uint64_t d = s + t;
+		s = get_reg(core, rs);
+		t = get_reg(core, rt);
+		d = s + t;
 		exec_ADD(core, inst);
 		assert(get_reg(core, rd) == d);
 		if (d >= 0x100000000)
@@ -46,17 +48,17 @@ int test_r_type(core_p core, inst_t inst)
 		break;
 		
 	case    R_ADDU:    	// add unsigned (no overflow)
-		uint32_t s = get_reg(core, rs);
-		uint32_t t = get_reg(core, rt);
-		uint32_t d = s + t;
+		s = get_reg(core, rs);
+		t = get_reg(core, rt);
+		d = s + t;
 		exec_ADDU(core, inst);
 		assert(get_reg(core, rd) == d);
 		break;
 		
 	case    R_AND:     	// bitwise and
-		uint32_t s = get_reg(core, rs);
-		uint32_t t = get_reg(core, rt);
-		uint32_t d = s & t;
+		s = get_reg(core, rs);
+		t = get_reg(core, rt);
+		d = s & t;
 		set_reg(core, rd, d);
 		break;
 
@@ -72,8 +74,8 @@ int test_r_type(core_p core, inst_t inst)
 		break;
 	case    R_MULTU:   	// multiply unsigned 
 		break;
-	case    R_NOOP:    	// no-op FIXME shall we say noop is R-style? 
-		break;
+	// case    R_NOOP:    	// no-op FIXME shall we say noop is R-style? 
+	// 	break;
 	case    R_OR:      	// bitwise or 
 		break;
 	case    R_SLT:     	// set on less than (signed) 
