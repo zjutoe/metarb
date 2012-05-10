@@ -8,7 +8,9 @@
 #define REG_ZERO     0
 #define REG_PC       32
 #define REG_OVERFLOW 33
-#define MAX_REG_NUM  34
+#define REG_LO       34
+#define REG_HI       35
+#define MAX_REG_NUM  36
 
 
 /* A MIPS core */

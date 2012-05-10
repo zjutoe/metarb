@@ -72,38 +72,98 @@ inline void set_reg(core_p core, int rid, uint32_t v)
 	core->r[rid] = v;
 }
 
-/*
- * add $d, $s, $t  --  $d = $s + $t FIXME handle overflow
- */
+// the operations below are routine for all R-type instructions
+#define R_TYPE_EXEC_TEMPLATE(core, inst)	\
+	int op, rs, rt, rd, sa, func;		\
+	uint32_t s, t;				\
+	do {					\
+		op   = OP(inst);		\
+		rs   = RS(inst);		\
+		rt   = RT(inst);		\
+		rd   = RD(inst);		\
+		sa   = SA(inst);		\
+		func = FUNC(inst);		\
+						\
+		assert (op == 0);		\
+		assert (core != NULL);		\
+						\
+		s = get_reg(core, rs);		\
+		t = get_reg(core, rt);		\
+	} while(0)
+	
+
+
+// add $d, $s, $t  --  $d = $s + $t FIXME handle overflow
 inline int exec_ADD(core_p core, inst_t inst)
 {
 	LOG_T;
 
-	// TODO create a macro as a "R-type exec template" to avoid
-	// the duplication
-	int op   = OP(inst);
-	int rs   = RS(inst);
-	int rt   = RT(inst);
-	int rd   = RD(inst);
-	int sa   = SA(inst);
-	int func = FUNC(inst);
-
-	assert (op == 0);
-	assert (core != NULL);
-
+	R_TYPE_EXEC_TEMPLATE(core, inst);
 	// TODO need to validate all the fields of the inst
 
-	uint64_t s = get_reg(core, rs);
-	uint64_t t = get_reg(core, rt);
 	uint64_t d = s + t;
 	if (d >= 0x100000000)
 		set_reg(core, REG_OVERFLOW, 1);
 	set_reg(core, rd, d);
 }
 
-/*
- * addi $t, $s, imm -- $t = $s + imm FIXME handle overflow
- */
+
+
+// addu $d, $s, $t  --  $d = $s + $t FIXME handle overflow
+inline int exec_ADDU(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
+
+	uint32_t d = s + t;
+	set_reg(core, rd, d);
+}
+
+
+
+// and $d, $s, $t  --  $d = $s & $t
+inline int exec_AND(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t d = s & t;
+	set_reg(core, rd, d);
+}
+
+// div $d, $s, $t  --  $d = $s / $t
+inline int exec_DIV(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t lo = s / t;
+	uint32_t hi = s % t;
+	set_reg(core, REG_LO, lo);
+	set_reg(core, REG_HI, hi);
+}
+
+// FIXME I don't understand the difference between div and divu
+
+// divu $d, $s, $t  --  $d = $s / $t
+inline int exec_DIVU(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t lo = s / t;
+	uint32_t hi = s % t;
+	set_reg(core, REG_LO, lo);
+	set_reg(core, REG_HI, hi);
+}
+
+
+// addi $t, $s, imm -- $t = $s + imm FIXME handle overflow
 inline int exec_ADDI(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -111,67 +171,13 @@ inline int exec_ADDI(core_p core, inst_t inst)
 		//core.r[t] = core.r[s] + imm;
 }
 
-/*
- * addu $d, $s, $t  --  $d = $s + $t FIXME handle overflow
- */
-inline int exec_ADDU(core_p core, inst_t inst)
-{
-	LOG_T;
 
-	int op   = OP(inst);
-	int rs   = RS(inst);
-	int rt   = RT(inst);
-	int rd   = RD(inst);
-	int sa   = SA(inst);
-	int func = FUNC(inst);
-
-	// TODO validate the instruction
-
-	assert (op == 0);
-	assert (core != NULL);
-
-	uint32_t s = get_reg(core, rs);
-	uint32_t t = get_reg(core, rt);
-	uint32_t d = s + t;
-
-	set_reg(core, rd, d);
-}
-
-/*
- * addiu $t, $s, imm -- $t = $s + imm FIXME handle overflow
- */
+// addiu $t, $s, imm -- $t = $s + imm FIXME handle overflow
 inline int exec_ADDIU(core_p core, inst_t inst)
 {
 	LOG_T;
 
 		//core.r[t] = core.r[s] + imm;
-}
-
-/*
- * and $d, $s, $t  --  $d = $s & $t
- */
-inline int exec_AND(core_p core, inst_t inst)
-{
-	LOG_T;
-
-	int op   = OP(inst);
-	int rs   = RS(inst);
-	int rt   = RT(inst);
-	int rd   = RD(inst);
-	int sa   = SA(inst);
-	int func = FUNC(inst);
-
-	// TODO validate the instruction
-
-	assert (op == 0);
-	assert (core != NULL);
-
-	uint32_t s = get_reg(core, rs);
-	uint32_t t = get_reg(core, rt);
-	uint32_t d = s & t;
-
-	set_reg(core, rd, d);
-
 }
 
 inline int exec_ANDI(core_p core, inst_t inst)
