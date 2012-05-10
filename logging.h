@@ -41,10 +41,10 @@
 
 
 /* Error */
-#define LOG_E(_fmt, ...)						\
+#define LOG_E(_fmt, args...)						\
 	do {								\
-		syslog(3, "[E] " _fmt WHERESTR "\n", __VA_ARGS__, WHEREARG); \
-		printf( "[E] " _fmt WHERESTR "\n", __VA_ARGS__, WHEREARG); \
+		syslog(3, "[E] " _fmt WHERESTR "\n" , ##args, WHEREARG); \
+		printf( "[E] " _fmt WHERESTR "\n" , ##args, WHEREARG);	\
 	} while(0)
 
 

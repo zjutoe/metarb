@@ -1,12 +1,23 @@
 CFLAGS := -DDEBUG
 
-sim: main.o core.o utils.o test.o
-	cc $(CFLAGS) -o sim main.o core.o utils.o test.o
+OBJS := main.o core.o utils.o test.o
 
-main.o core.o utils.o test.o : utils.h logging.h inst.h test.h
+sim: $(OBJS)
+	cc $(CFLAGS) -o sim $(OBJS)
+
+# dependencies on source files and header files
+-include $(OBJS:.o=.d)
+
+#gcc -MM will generate the dependency file list, which is used in the
+#-include $(OBJS:.o=.d) statement to automatically determine the
+#dependencies on header files (and c source files as well)
+%.o: %.c
+	gcc -c $(CFLAGS) $*.c -o $*.o
+	gcc -MM $(CFLAGS) $*.c > $*.d
+
 
 .PHONY: clean
 
 clean:
-	rm sim *.o
+	rm sim $(OBJS) *.d
 
