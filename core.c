@@ -12,7 +12,7 @@ static int core_num;
 
 static void core_init(core_p core, int id)
 {
-	LOG_T
+	LOG_T;
 
 	assert(id>=0 && id<MAX_CORE_NUM);
 
@@ -31,7 +31,7 @@ int init_cores(int num)
 
 	core_p p = NULL;
 	p = malloc(sizeof(core_t) * num);
-	if (unlikely(1 || p == NULL)) {
+	if (unlikely(p == NULL)) {
 		LOG_C("Out Of Memory, failed to allocate %d cores...", num);
 		exit(1);
 	}
@@ -49,7 +49,7 @@ int init_cores(int num)
 
 core_p get_core(int id)
 {
-	LOG_T
+	LOG_T;
 
 	assert(id>=0 && id<=core_num);
 
@@ -89,7 +89,7 @@ inline void set_reg(core_p core, int rid, uint32_t v)
  */
 inline int exec_ADD(core_p core, inst_t inst)
 {
-	LOG_T
+	LOG_T;
 
 	// TODO create a macro as a "R-type exec template" to avoid
 	// the duplication
@@ -118,7 +118,7 @@ inline int exec_ADD(core_p core, inst_t inst)
  */
 inline int exec_ADDI(core_p core, inst_t inst)
 {
-	LOG_T
+	LOG_T;
 
 		//core.r[t] = core.r[s] + imm;
 }
@@ -128,7 +128,7 @@ inline int exec_ADDI(core_p core, inst_t inst)
  */
 inline int exec_ADDU(core_p core, inst_t inst)
 {
-	LOG_T
+	LOG_T;
 
 	int op   = OP(inst);
 	int rs   = RS(inst);
@@ -154,7 +154,7 @@ inline int exec_ADDU(core_p core, inst_t inst)
  */
 inline int exec_ADDIU(core_p core, inst_t inst)
 {
-	LOG_T
+	LOG_T;
 
 		//core.r[t] = core.r[s] + imm;
 }
@@ -164,7 +164,7 @@ inline int exec_ADDIU(core_p core, inst_t inst)
  */
 inline int exec_AND(core_p core, inst_t inst)
 {
-	LOG_T
+	LOG_T;
 
 	int op   = OP(inst);
 	int rs   = RS(inst);
@@ -188,7 +188,7 @@ inline int exec_AND(core_p core, inst_t inst)
 
 inline int exec_ANDI(core_p core, inst_t inst)
 {
-	LOG_T
+	LOG_T;
 
 		//core.r[t] = core.r[s] & imm;
 }

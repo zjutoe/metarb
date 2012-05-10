@@ -16,8 +16,10 @@ sim: $(OBJS)
 	gcc -MM $(CFLAGS) $*.c > $*.d
 
 
-.PHONY: clean
+.PHONY: clean tags 
 
 clean:
 	rm sim $(OBJS) *.d
 
+tags:
+	find . -name "*.[ch]" | xargs etags -a

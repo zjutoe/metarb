@@ -20,7 +20,7 @@
 #define LOG_T							\
 	syslog(LOG_DEBUG,					\
 	       "[T] " WHERESTR "\n",				\
-	       WHEREARG);
+	       WHEREARG)
 
 
 // we use the tricks of Variadic Macros below, see
