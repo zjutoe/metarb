@@ -8,67 +8,60 @@
 #define INIT_LOG openlog("metarb", LOG_CONS, 0);
 #define FINI_LOG closelog();
 
-/* FIXME to allow more parameters from user */
-
-/* To trace in very detailed level. Usually will appear many times in
-   every function */
+/* TODO to define the macro's as inline functions? */
 
 
-#define WHERESTR  " %s:%s:%d"
+#define WHERESTR  "[%s:%s:%d]"
 #define WHEREARG  __FILE__, __FUNCTION__, __LINE__
 
 
+// To trace in very detailed level. Usually will appear many times in
+//    every function
 #define LOG_T							\
 	syslog(LOG_DEBUG,					\
 	       "[T] " WHERESTR "\n",				\
 	       WHEREARG);
 
 
-/* Debug log. Put in Ad hoc way */
-#define LOG_D(_fmt, ...)						\
-	syslog(LOG_DEBUG,						\
-	       "[D] " _fmt WHERESTR "\n",				\
-	       __VA_ARGS__, WHEREARG)
+// we use the tricks of Variadic Macros below, see
+// http://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+
+// Debug log. Put in Ad hoc way
+#define LOG_D(_fmt, args...)					\
+	syslog(LOG_DEBUG,					\
+	       "[D] " _fmt WHERESTR "\n" , ##args, WHEREARG)
 
 
-
-/* informative log. Show to user */
-#define LOG_I(_fmt, ...)					 \
+// informative log. Show to user
+#define LOG_I(_fmt, args...)					 \
 	do {							 \
-		syslog(LOG_INFO, "[I] " _fmt "\n", __VA_ARGS__); \
-		printf("[I] " _fmt "\n", __VA_ARGS__);		 \
+		syslog(LOG_INFO,				 \
+		       "[I] " _fmt "\n" , ##args);		 \
+		fprintf(stderr,					 \
+			"[I] " _fmt "\n" , ##args);		 \
 	} while(0)
 
 
-/* Error */
+
+// Error
 #define LOG_E(_fmt, args...)						\
 	do {								\
-		syslog(3, "[E] " _fmt WHERESTR "\n" , ##args, WHEREARG); \
-		printf( "[E] " _fmt WHERESTR "\n" , ##args, WHEREARG);	\
+		syslog(LOG_ERR,						\
+		       "[E] " _fmt WHERESTR "\n" , ##args, WHEREARG);	\
+		fprintf(stderr,						\
+			"[E] " _fmt WHERESTR "\n" , ##args, WHEREARG);	\
 	} while(0)
 
 
 
 /* Critical Error */
-#define LOG_C(_fmt, ...)						\
+#define LOG_C(_fmt, args...)						\
 	do {								\
-		syslog(2,"[!] " _fmt WHERESTR "\n", __VA_ARGS__, WHEREARG); \
-		printf(  "[!] " _fmt WHERESTR "\n", __VA_ARGS__, WHEREARG); \
+		syslog(LOG_CRIT,					\
+		       "[!] " _fmt WHERESTR "\n" , ##args, WHEREARG);	\
+		fprintf(stderr,						\
+			"[!] " _fmt WHERESTR "\n" , ##args, WHEREARG);	\
 	} while(0)
-
-
-
-/* Well, sounds like this function below should not be here. But
-   before we have a more formal error handling system let's just put
-   it here. */
-
-// #define DIE_IF(cond, _fmg, ...)				\
-// 	do{						\
-// 		if(unlikely(cond)){			\
-// 			LOG_C(msg);			\
-// 			exit(1);			\
-// 		}					\
-// 	}while(0)
 
 
 
