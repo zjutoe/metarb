@@ -16,10 +16,16 @@ sim: $(OBJS)
 	gcc -MM $(CFLAGS) $*.c > $*.d
 
 
-.PHONY: clean tags 
+.PHONY: clean tags
 
 clean:
 	rm sim $(OBJS) *.d
 
+distclean:
+	rm sim $(OBJS) *.d TAGS cscope.*
+
 tags:
-	find . -name "*.[ch]" | xargs etags -a
+	find . -name "*.[ch]" > cscope.files
+	cscope -bq
+	cat cscope.files | xargs etags -a
+
