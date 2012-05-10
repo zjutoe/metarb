@@ -72,18 +72,6 @@ inline void set_reg(core_p core, int rid, uint32_t v)
 	core->r[rid] = v;
 }
 
-
-
-#define R_TYPE_REGS(inst)			\
-	int s = inst.rs;			\
-	int t = inst.rt;			\
-	int d = inst.rd;
-
-#define I_TYPE_REGS(inst)			\
-	int imm = inst.imm;			\
-	int s = inst.rs;			\
-	int t = inst.rt;
-
 /*
  * add $d, $s, $t  --  $d = $s + $t FIXME handle overflow
  */
