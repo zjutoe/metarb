@@ -102,8 +102,14 @@ inline int exec_ADD(core_p core, inst_t inst)
 	// TODO need to validate all the fields of the inst
 
 	uint64_t d = s + t;
-	if (d >= 0x100000000)
-		set_reg(core, REG_OVERFLOW, 1);
+
+	// a trick to test overflow
+	test_bits = (d >> 31) & 0x03;
+	if (test_bits!=0 && test_bits!=0x03)
+		set_reg(core, REG_OVERFLOW, 1); //FIXME spec says need
+						//to raise an
+						//exception
+	
 	set_reg(core, rd, d);
 }
 

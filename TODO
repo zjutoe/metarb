@@ -1,2 +1,7 @@
 1. a building system in lua; now use makefile 1st
 
+2. We do not check instruction validity for the non-functional fields,
+   e.g. the shamnt field of addu instruction. In this way we save some
+   checking efforts, but seems not good as it does not comply with the
+   spec.
+

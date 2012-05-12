@@ -114,8 +114,12 @@ int test_r_type(core_p core, inst_t inst)
 		d = s + t;
 		exec_ADD(core, inst);
 
-		assert(get_reg(core, rd) == d);
-		assert((d >= 0x100000000) ? get_reg(core, REG_OVERFLOW) == 1 : (get_reg(core, REG_OVERFLOW) == 0));
+		
+		test_bits = (d >> 31) & 0x03;
+		// if the 2 bits d[32]!=d[31], then overflow occurs
+		assert((test_bits!=0 && test_bits!=0x03) ? 
+		       get_reg(core, REG_OVERFLOW) == 0 : (get_reg(core, REG_OVERFLOW) == 1));
+		assert(get_reg(core, rd) == d & 0xFFFFFFFF);
 		break;
 		
 	case    R_ADDU:    	// add unsigned (no overflow)
@@ -125,7 +129,7 @@ int test_r_type(core_p core, inst_t inst)
 		d = s + t;
 		exec_ADDU(core, inst);
 
-		assert(get_reg(core, rd) == d);
+		assert(get_reg(core, rd) == d & 0xFFFFFFFF);
 		break;
 		
 	case    R_AND:     	// bitwise and
