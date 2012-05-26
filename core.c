@@ -99,12 +99,19 @@ inline int exec_ADD(core_p core, inst_t inst)
 	LOG_T;
 
 	R_TYPE_EXEC_TEMPLATE(core, inst);
-	// TODO need to validate all the fields of the inst
+	// TODO need to validate all the fields of the inst comply
+	// with the ADD instruction. I.e. the unspecified fields be
+	// all zero's.
 
-	uint64_t d = s + t;
+	// ADD treats the operands as signed values
+	int32_t ss = s;
+	int32_t st = t;
 
-	// a trick to test overflow
-	test_bits = (d >> 31) & 0x03;
+	uint64_t d = ss + st;
+
+	// a trick to test overflow. TODO Well, I learn this trick
+	// from the SPEC, but don't understand it very well.
+	uint32_t test_bits = (d >> 31) & 0x03;
 	if (test_bits!=0 && test_bits!=0x03)
 		set_reg(core, REG_OVERFLOW, 1); //FIXME spec says need
 						//to raise an
@@ -147,13 +154,15 @@ inline int exec_DIV(core_p core, inst_t inst)
 
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 
-	uint32_t lo = s / t;
-	uint32_t hi = s % t;
+	// DIV treats the operands as signed values
+	int32_t ss = s;
+	int32_t st = t;
+
+	int32_t lo = ss / st;
+	int32_t hi = ss % st;
 	set_reg(core, REG_LO, lo);
 	set_reg(core, REG_HI, hi);
 }
-
-// FIXME I don't understand the difference between div and divu
 
 // divu $d, $s, $t  --  $d = $s / $t
 inline int exec_DIVU(core_p core, inst_t inst)
@@ -174,7 +183,7 @@ inline int exec_ADDI(core_p core, inst_t inst)
 {
 	LOG_T;
 
-		//core.r[t] = core.r[s] + imm;
+	//core.r[t] = core.r[s] + imm;
 }
 
 

@@ -101,7 +101,13 @@ int test_r_type(core_p core, inst_t inst)
 
 	dump_r_type_inst(inst);
 
-	uint64_t s, t, d;
+	// Registers are unsigned. When reading them to signed
+	// variables, then they are treated (converted) to signed. So
+	// we use signed and unsigned s, t and d for signed and
+	// unsigned instructions.
+	uint32_t us, ut, ud, ulo, uhi;
+	int32_t  s, t, d, lo, hi;
+	uint64_t ud64;
 
 	assert (op == 0);
 	assert (core);
@@ -109,43 +115,70 @@ int test_r_type(core_p core, inst_t inst)
 	switch (func) {
 	case    R_ADD:		// add signed (with overflow) 
 		LOG_T;
+
 		s = get_reg(core, rs);
 		t = get_reg(core, rt);
-		d = s + t;
+		ud64 = s + t;
+		set_reg(core, REG_OVERFLOW, 0);
 		exec_ADD(core, inst);
+		int is_overflow = get_reg(core, REG_OVERFLOW);
 
-		
-		test_bits = (d >> 31) & 0x03;
-		// if the 2 bits d[32]!=d[31], then overflow occurs
-		assert((test_bits!=0 && test_bits!=0x03) ? 
-		       get_reg(core, REG_OVERFLOW) == 0 : (get_reg(core, REG_OVERFLOW) == 1));
-		assert(get_reg(core, rd) == d & 0xFFFFFFFF);
+		// if the 2 bits ud64[32]!=ud64[31], then overflow occurs
+		int bit32 = ud64 & 0x100000000;
+		int bit31 = ud64 &  0x80000000;
+		assert(bit32 != bit31 ? is_overflow == 1 : is_overflow == 0);
+		assert(get_reg(core, rd) == ud64);
+
 		break;
 		
 	case    R_ADDU:    	// add unsigned (no overflow)
 		LOG_T;
-		s = get_reg(core, rs);
-		t = get_reg(core, rt);
-		d = s + t;
+		us = get_reg(core, rs);
+		ut = get_reg(core, rt);
+		ud = s + t;
 		exec_ADDU(core, inst);
 
-		assert(get_reg(core, rd) == d & 0xFFFFFFFF);
+		assert(get_reg(core, rd) == ud);
+
 		break;
 		
 	case    R_AND:     	// bitwise and
 		LOG_T;
-		s = get_reg(core, rs);
-		t = get_reg(core, rt);
-		d = s & t;
-		set_reg(core, rd, d);
+		us = get_reg(core, rs);
+		ut = get_reg(core, rt);
+		ud = us & ut;
+		exec_AND(core, inst);
+
+		assert(get_reg(core, rd) == ud);
+
 		break;
 
 	case    R_DIV:     	// divide signed 
 		LOG_T;
+		s = get_reg(core, rs);
+		t = get_reg(core, rt);
+		lo = s / t;
+		hi = s % t;
+		exec_DIV(core, inst);
+		
+		assert(get_reg(core, REG_LO) == lo);
+		assert(get_reg(core, REG_HI) == hi);
+
 		break;
+
 	case    R_DIVU:    	// divide unsigned 
 		LOG_T;
+		us = get_reg(core, rs);
+		ut = get_reg(core, rt);
+		ulo = us / ut;
+		uhi = us % ut;
+		exec_DIV(core, inst);
+		
+		assert(get_reg(core, REG_LO) == ulo);
+		assert(get_reg(core, REG_HI) == uhi);
+
 		break;
+
 	case    R_MFHI:    	// move from HI 
 		LOG_T;
 		break;

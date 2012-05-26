@@ -19,11 +19,8 @@ typedef struct _core {
 	/* process ID, used in multi-core /multi-CPU system */
 	int id;
 
-	/* program counter */
-	unsigned int pc;
-
 	/* the 32 architecture registers */
-	int r[32];
+	int r[MAX_REG_NUM];
 
 } core_t, *core_p;
 
