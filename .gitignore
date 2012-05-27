@@ -6,6 +6,9 @@
 a.out
 sim
 
+# GCC generated dependency file list
+*.d
+
 # etags and cscope cache
 TAGS
 cscope.files
@@ -17,7 +20,6 @@ cscope.po.out
 *.slo
 *.lo
 *.o
-*.d
 
 # Compiled Dynamic libraries
 *.so

@@ -7,6 +7,15 @@
 #include "test.h"
 
 
+#define TEST_PROGRAM_LEN 128
+static uint32_t test_program_bin[TEST_PROGRAM_LEN] = {
+	0x014b4820,	// add $t1, $t2, $t3
+	0x014b4820,	// add $t1, $t2, $t3
+	0x016c5020,	// add $t2, $t3, $t4
+	0x0		// Noop FIXME should use "halt" to terminate,
+			// but don't find the inst in the spec yet.
+};
+
 int base_test()
 {
 	LOG_T;
@@ -18,15 +27,16 @@ int base_test()
 
 	randomize_core(core);
 
-	inst_t i0 = build_r_type_inst(1, 2, 3, 0, R_ADD);
-	inst_t i1 = build_r_type_inst(1, 2, 3, 0, R_ADDU);
+	uint32_t inst;
+	int i=0;
+	do {
+		inst = test_program_bin[i];
+		ret = test_r_type(core, inst);
+		if (ret)
+			goto exit;
 
-	
-	ret = test_r_type(core, i0);
-	if (ret)
-		goto exit;
-
-	ret = test_r_type(core, i1);
+		i++;
+	} while (inst != 0x0 && i<TEST_PROGRAM_LEN);
 
  exit:
 	return ret;
@@ -43,31 +53,6 @@ void randomize_core(core_p core)
 		set_reg(core, i, i);
 	set_reg(core, REG_PC, 0);
 	set_reg(core, REG_OVERFLOW, 0);
-}
-
-
-// to build a R-type instruction. opcode is not listed as parameter
-// because it's always 0
-uint32_t build_r_type_inst(int rs, int rt, int rd, int sa, int func)
-{
-	LOG_T;
-	uint32_t inst;
-	syslog(LOG_DEBUG, "[D]rs=%d rt=%d rd=%d sa=%d func=%d\n",
-	       rs,
-	       rt,
-	       rd,
-	       sa,
-	       func
-	       );
-
-	// We do not sanitize the built instruction here, because we
-	// may try to build invalid instructions and feed to the core
-	// on purpose
-	inst = (rs<<21) | (rt<<16) | (rd<<11) | (sa<<6) | func;
-
-	dump_r_type_inst(inst);
-
-	return inst;
 }
 
 void dump_r_type_inst(inst_t inst)
