@@ -118,6 +118,8 @@ inline int exec_ADD(core_p core, inst_t inst)
 						//exception
 	
 	set_reg(core, rd, d);
+
+	return 0;
 }
 
 
@@ -132,6 +134,8 @@ inline int exec_ADDU(core_p core, inst_t inst)
 
 	uint32_t d = s + t;
 	set_reg(core, rd, d);
+
+	return 0;
 }
 
 
@@ -145,9 +149,11 @@ inline int exec_AND(core_p core, inst_t inst)
 
 	uint32_t d = s & t;
 	set_reg(core, rd, d);
+
+	return 0;
 }
 
-// div $d, $s, $t  --  $d = $s / $t
+// div $d, $s, $t  --  ($hi,$lo) = $s / $t
 inline int exec_DIV(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -162,9 +168,11 @@ inline int exec_DIV(core_p core, inst_t inst)
 	int32_t hi = ss % st;
 	set_reg(core, REG_LO, lo);
 	set_reg(core, REG_HI, hi);
+
+	return 0;
 }
 
-// divu $d, $s, $t  --  $d = $s / $t
+// divu $d, $s, $t  --  ($hi,$lo) = $s / $t
 inline int exec_DIVU(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -175,6 +183,8 @@ inline int exec_DIVU(core_p core, inst_t inst)
 	uint32_t hi = s % t;
 	set_reg(core, REG_LO, lo);
 	set_reg(core, REG_HI, hi);
+
+	return 0;
 }
 
 
@@ -184,6 +194,8 @@ inline int exec_MFHI(core_p core, inst_t inst)
 
 	uint32_t rd = get_reg(core, REG_HI);
 	set_reg(core, REG_HI, rd);
+
+	return 0;
 }
 
 
@@ -193,7 +205,84 @@ inline int exec_MFLO(core_p core, inst_t inst)
 
 	uint32_t rd = get_reg(core, REG_LO);
 	set_reg(core, REG_HI, rd);
+
+	return 0;
 }
+
+
+// mult $d, $s, $t  --  ($hi,$lo) = $s * $t
+inline int exec_MULT(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+
+	int32_t ss = s;
+	int32_t st = t;
+
+	uint32_t lo = s * t;
+	uint32_t hi = (s * t)>>32;
+	set_reg(core, REG_LO, lo);
+	set_reg(core, REG_HI, hi);
+
+	return 0;
+}
+
+
+// multu $d, $s, $t  --  ($hi,$lo) = $s * $t
+inline int exec_MULTU(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t ss = s;
+	uint32_t st = t;
+
+	uint32_t lo = s * t;
+	uint32_t hi = (s * t)>>32;
+	set_reg(core, REG_LO, lo);
+	set_reg(core, REG_HI, hi);
+}
+
+
+
+// Noop
+inline int exec_NOOP(core_p core, inst_t inst)
+{
+	LOG_T;
+	// TODO validate the inst
+	return 0;
+}
+
+
+inline int exec_OR(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
+
+	uint32_t d = s | t;
+	set_reg(core, rd, d);
+
+	return 0;
+}
+
+
+// inline int exec_SLT(core_p core, inst_t inst)
+// {
+// 	LOG_T;
+
+// 	R_TYPE_EXEC_TEMPLATE(core, inst);
+// 	// TODO validate the instruction
+
+// 	uint32_t d = s | t;
+// 	set_reg(core, rd, d);
+
+// 	return 0;
+// }
+
 
 
 // addi $t, $s, imm -- $t = $s + imm FIXME handle overflow
