@@ -5,4 +5,6 @@
    checking efforts, but seems not good as it does not comply with the
    spec.
 
-3. finish all R-type instructions by today May 27 2012.
+3. finish all R-type instructions by today May 27 2012. -- failed... still working
+
+4. to get GCC mips tool chain
