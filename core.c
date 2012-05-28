@@ -270,18 +270,53 @@ inline int exec_OR(core_p core, inst_t inst)
 }
 
 
-// inline int exec_SLT(core_p core, inst_t inst)
-// {
-// 	LOG_T;
+// Set on Less Than
+inline int exec_SLT(core_p core, inst_t inst)
+{
+	LOG_T;
 
-// 	R_TYPE_EXEC_TEMPLATE(core, inst);
-// 	// TODO validate the instruction
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
 
-// 	uint32_t d = s | t;
-// 	set_reg(core, rd, d);
+	int32_t ss = s;
+	int32_t st = t;
+	
+	uint32_t d = ss < st;
+	set_reg(core, rd, d);
 
-// 	return 0;
-// }
+	return 0;
+}
+
+
+// Set on Less Than Unsigned
+inline int exec_SLTU(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
+
+	uint32_t d = s < t;
+	set_reg(core, rd, d);
+
+	return 0;
+}
+
+
+// Shift Left Logical
+inline int exec_SLL(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
+
+	uint32_t d = s << sa;
+	set_reg(core, rd, d);
+
+	return 0;
+}
+
 
 
 
