@@ -178,6 +178,24 @@ inline int exec_DIVU(core_p core, inst_t inst)
 }
 
 
+inline int exec_MFHI(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	uint32_t rd = get_reg(core, REG_HI);
+	set_reg(core, REG_HI, rd);
+}
+
+
+inline int exec_MFLO(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	uint32_t rd = get_reg(core, REG_LO);
+	set_reg(core, REG_HI, rd);
+}
+
+
 // addi $t, $s, imm -- $t = $s + imm FIXME handle overflow
 inline int exec_ADDI(core_p core, inst_t inst)
 {
