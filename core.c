@@ -124,7 +124,7 @@ inline int exec_ADD(core_p core, inst_t inst)
 
 
 
-// addu $d, $s, $t  --  $d = $s + $t FIXME handle overflow
+// addu $d, $s, $t  --  $d = $s + $t
 inline int exec_ADDU(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -318,6 +318,124 @@ inline int exec_SLL(core_p core, inst_t inst)
 }
 
 
+// Shift Left Logical Value
+inline int exec_SLLV(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
+
+	uint32_t d = t << (s & 0x1F);
+	set_reg(core, rd, d);
+
+	return 0;
+}
+
+
+// Shift Right Arithmetic
+inline int exec_SRA(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
+
+	int32_t d = t >> sa;
+	set_reg(core, rd, d);
+
+	return 0;
+}
+
+
+// Shift Right Logical
+inline int exec_SRL(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
+
+	uint32_t d = t >> sa;
+	set_reg(core, rd, d);
+
+	return 0;
+}
+
+
+// Shift Right Logical Value
+inline int exec_SRLV(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
+
+	uint32_t d = t >> (s & 0x1F);
+	set_reg(core, rd, d);
+
+	return 0;
+}
+
+
+// sub $d, $s, $t  --  $d = $s - $t FIXME handle overflow
+inline int exec_SUB(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO need to validate all the fields of the inst comply
+	// with the ADD instruction. I.e. the unspecified fields be
+	// all zero's.
+
+	// ADD treats the operands as signed values
+	int32_t ss = s;
+	int32_t st = t;
+
+	uint64_t d = ss - st;
+
+	// a trick to test overflow. TODO Well, I learn this trick
+	// from the SPEC, but don't understand it very well.
+	uint32_t test_bits = (d >> 31) & 0x03;
+	if (test_bits!=0 && test_bits!=0x03)
+		set_reg(core, REG_OVERFLOW, 1); //FIXME spec says need
+						//to raise an
+						//exception
+	
+	set_reg(core, rd, d);
+
+	return 0;
+}
+
+
+
+// subu $d, $s, $t  --  $d = $s - $t
+inline int exec_SUBU(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+	// TODO validate the instruction
+
+	uint32_t d = s - t;
+	set_reg(core, rd, d);
+
+	return 0;
+}
+
+
+// and $d, $s, $t  --  $d = $s & $t
+inline int exec_XOR(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	R_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t d = s ^ t;
+	set_reg(core, rd, d);
+
+	return 0;
+}
 
 
 // addi $t, $s, imm -- $t = $s + imm FIXME handle overflow
