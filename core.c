@@ -424,6 +424,9 @@ inline int exec_SUBU(core_p core, inst_t inst)
 }
 
 
+// TODO R_SYSCALL system call
+
+
 // and $d, $s, $t  --  $d = $s & $t
 inline int exec_XOR(core_p core, inst_t inst)
 {
@@ -437,13 +440,50 @@ inline int exec_XOR(core_p core, inst_t inst)
 	return 0;
 }
 
+// restrict this macro in this file
+#undef R_TYPE_EXEC_TEMPLATE
+
+
+#define I_TYPE_EXEC_TEMPLATE(core, inst)	\
+	int op, rs, rt;				\
+	uint16_t imm;				\
+	uint32_t s;				\
+	do {					\
+		op   = OP(inst);		\
+		rs   = RS(inst);		\
+		rt   = RT(inst);		\
+		imm  = IMM(inst);		\
+		assert (core != NULL);		\
+						\
+		s = get_reg(core, rs);		\
+	} while(0)
+
 
 // addi $t, $s, imm -- $t = $s + imm FIXME handle overflow
 inline int exec_ADDI(core_p core, inst_t inst)
 {
 	LOG_T;
 
-	//core.r[t] = core.r[s] + imm;
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	// ADD treats the operands as signed values
+
+	int32_t ss   = s;
+	int32_t simm = imm;
+	
+	uint64_t t = ss + simm;
+
+	// a trick to test overflow. TODO Well, I learn this trick
+	// from the SPEC, but don't understand it very well.
+	uint32_t test_bits = (t >> 31) & 0x03;
+	if (test_bits!=0 && test_bits!=0x03)
+		set_reg(core, REG_OVERFLOW, 1); //FIXME spec says need
+						//to raise an
+						//exception
+	
+	set_reg(core, rt, t);
+
+	return 0;
 }
 
 
@@ -452,13 +492,55 @@ inline int exec_ADDIU(core_p core, inst_t inst)
 {
 	LOG_T;
 
-		//core.r[t] = core.r[s] + imm;
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	// ADD treats the operands as signed values
+
+	int32_t ss   = s;
+	int32_t simm = imm;
+	
+	uint32_t t = ss + simm;
+
+	set_reg(core, rt, t);
+
+	return 0;
 }
 
 inline int exec_ANDI(core_p core, inst_t inst)
 {
 	LOG_T;
 
-		//core.r[t] = core.r[s] & imm;
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t t = s & imm;
+	set_reg(core, rt, t);
+
+	return 0;
+}
+
+
+inline int exec_ORI(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t t = s | imm;
+	set_reg(core, rt, t);
+
+	return 0;
+}
+
+
+inline int exec_XORI(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t t = s ^ imm;
+	set_reg(core, rt, t);
+
+	return 0;
 }
 

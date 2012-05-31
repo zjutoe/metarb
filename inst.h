@@ -19,11 +19,13 @@
 typedef uint32_t inst_t;
 
 #define OP(i)    ((i)  >> 26)	         // 31:26
-#define RS(i)    (((i) >> 21) & 0x1F)   // 25:21
-#define RT(i)    (((i) >> 16) & 0x1F)   // 20:16
-#define RD(i)    (((i) >> 11) & 0x1F)   // 15:11
-#define SA(i)    (((i) >>  6) & 0x1F)   // 10:6
+#define RS(i)    (((i) >> 21) & 0x1F)    // 25:21
+#define RT(i)    (((i) >> 16) & 0x1F)    // 20:16
+#define RD(i)    (((i) >> 11) & 0x1F)    // 15:11
+#define SA(i)    (((i) >>  6) & 0x1F)    // 10:6
 #define FUNC(i)  ((i)  & 0x3F)		 // 5:0
+
+#define IMM(i)   ((i) & 0xFFFF)	         // 15:0
 
 
 
