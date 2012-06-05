@@ -544,3 +544,29 @@ inline int exec_XORI(core_p core, inst_t inst)
 	return 0;
 }
 
+inline int exec_SLTI(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	int32_t ss = s;
+
+	uint32_t t = ss < imm;
+	set_reg(core, rt, t);
+
+	return 0;
+}
+
+inline int exec_SLTIU(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t t = s < imm;
+	set_reg(core, rt, t);
+
+	return 0;
+}
+
