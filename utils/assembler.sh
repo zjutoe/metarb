@@ -14,7 +14,7 @@ do_r_type() {
     b_rd=$(regno $rd)
     b_sa='00000'
     
-    echo $b_op $b_rs $b_rt $b_rd
+    echo $b_op $b_rs $b_rt $b_sa $b_rd
 
 }
 
