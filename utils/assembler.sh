@@ -12,12 +12,17 @@ opcode() {
     ./lua52 opcode.lua $1
 }
 
+
+bin2hex() {
+    bc <<< "ibase=2;obase=F;$1"
+}
+
 # assume the input is segmented as 4x8
 inst_hex() {
     read -r s0 s1 s2 s3 s4 s5 s6 s7 <<< $1
     out=""
     for s in  $s0 $s1 $s2 $s3 $s4 $s5 $s6 $s7; do
-	h="$(./lua52 base_bin2hex.lua $s)"
+	h=$(bin2hex $s)
 	out="$out$h"
     done
     
@@ -38,10 +43,6 @@ pad_zero_pre() {
     echo "$t_pad$t_src"
 }
 
-bin2hex() {
-    bc <<< "ibase=2;obase=F;$1"
-}
-
 dec2bin() {
 	dec=$1
 	
@@ -58,6 +59,8 @@ dec2bin() {
 	# pad bin to 16 bits
 	pad_zero_pre $bin 16
 }
+
+
 
 output_inst() {
     inst_bin_full=$1
