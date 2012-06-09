@@ -12,13 +12,6 @@ opcode() {
     ./lua52 opcode.lua $1
 }
 
-# segment 32 continuous chars to 4x8
-inst_seg() {
-    inst=$1
-    echo "$(cut -c 1-4 <<< $inst) $(cut -c 5-8 <<< $inst) $(cut -c 9-12 <<< $inst) $(cut -c 13-16 <<< $inst)\
-         $(cut -c 17-20 <<< $inst) $(cut -c 21-24 <<< $inst) $(cut -c 25-28 <<< $inst) $(cut -c 29-32 <<< $inst)"
-}
-
 # assume the input is segmented as 4x8
 inst_hex() {
     read -r s0 s1 s2 s3 s4 s5 s6 s7 <<< $1
@@ -58,10 +51,8 @@ dec2bin() {
 
 output_inst() {
     inst_bin_full=$1
-    inst_bin_seg="$(cut -c 1-4   <<< $inst_bin_full) $(cut -c 5-8   <<< $inst_bin_full)\
-                  $(cut -c 9-12  <<< $inst_bin_full) $(cut -c 13-16 <<< $inst_bin_full)\
-                  $(cut -c 17-20 <<< $inst_bin_full) $(cut -c 21-24 <<< $inst_bin_full)\
-                  $(cut -c 25-28 <<< $inst_bin_full) $(cut -c 29-32 <<< $inst_bin_full)"
+    inst_bin_seg="${inst_bin_full:0:4} ${inst_bin_full:4:4} ${inst_bin_full:8:4} ${inst_bin_full:12:4}\
+                  ${inst_bin_full:16:4} ${inst_bin_full:20:4} ${inst_bin_full:24:4} ${inst_bin_full:28:4}"
     inst_hex_full=0x$(inst_hex "$inst_bin_seg")
 
     echo $inst_bin_full -- $inst_bin_seg -- $inst_hex_full -- $inst
@@ -78,14 +69,7 @@ do_r_type() {
     b_sa='00000'
     b_func=$(r_type_func $op)
 
-    output_inst "$b_op$b_rs$b_rt$b_sa$b_rd$b_func"
-    
-    # inst="$b_op""$b_rs""$b_rt""$b_sa""$b_rd""$b_func"
-    # segs=$(inst_seg $inst)
-    # # inst_seg="$(cut -c 1-4 <<< $inst) $(cut -c 5-8 <<< $inst) $(cut -c 9-12 <<< $inst) $(cut -c 13-16 <<< $inst)\
-    # #      $(cut -c 17-20 <<< $inst) $(cut -c 21-24 <<< $inst) $(cut -c 25-28 <<< $inst) $(cut -c 29-32 <<< $inst)"
-
-    # echo $inst -- $segs -- 0x$(inst_hex "$segs")
+    output_inst "$b_op$b_rs$b_rt$b_sa$b_rd$b_func"    
 }
 
 do_i_type_a() {
@@ -95,10 +79,6 @@ do_i_type_a() {
     b_imm=$(dec2bin $imm)
 
     output_inst "$b_op$b_rs$b_rt$b_imm"
-
-    # inst="$b_op$b_rs$b_rt$b_imm"
-    # segs=$(inst_seg $inst)
-    # echo $inst -- $segs -- 0x$(inst_hex "$segs")
 }
 
 
