@@ -133,18 +133,18 @@ main() {
 		;;
 
 	    'beq' | 'bne')
-		read -r _ rs rt label _ <<< $fields
-		do_i_type_b	# I-type branch 1
+		read -r _ rs rt imm _ <<< $fields
+		do_i_type_a	# I-type branch 1
 		;;
 
 	    'bgez' | 'bgtz'| 'blez' | 'bltz')
- 		read -r _ rs label _ <<< $fields
+ 		read -r _ rs imm _ <<< $fields
 		if [ $op = 'bgez' ]; then
 		    rt='$1'
 		else
 		    rt='$0'
 		fi
-		do_i_type_b	# I-type branch 2
+		do_i_type_a	# I-type branch 2
 		;;
 
 	    'lb' | 'lbu' | 'lh' | 'lhu' | 'lw'  | 'lwcl' |\
@@ -160,6 +160,9 @@ main() {
 		do_i_type_a	# I-type load store
 		;;
 	    'lui')
+		read -r _ rt imm <<< $fields
+		rs='$0'
+		do_i_type_a
 		;;
 	    
 	    *)
