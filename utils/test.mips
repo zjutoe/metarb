@@ -1,0 +1,12 @@
+addi $t0, $zero, 1
+addi $t1, $zero, 2
+add  $t2, $t0, $t1
+beq  $t2, $t0, 3
+bne  $t2, $t2, 3
+bgez $t2, 3
+bgtz $t2, 3
+blez $t2, 3
+bltz $t2, 3
+lw   $t2, 3($t1)
+lui  $t0, 3
+
