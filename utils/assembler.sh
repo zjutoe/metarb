@@ -84,7 +84,7 @@ do_r_type() {
     output_inst "$b_op$b_rs$b_rt$b_rd$b_sa$b_func"
 }
 
-do_i_type_a() {
+do_i_type() {
     b_op=$(opcode $op)
     b_rs=$(regno $rs)
     b_rt=$(regno $rt)
@@ -93,23 +93,6 @@ do_i_type_a() {
 
     output_inst "$b_op$b_rs$b_rt$b_imm"
 }
-
-
-do_i_type_b() {
-    b_op=$(opcode $op)
-    b_rs=$(regno $rs)
-    b_rt=$(regno $rt)
-    b_label=$(dec2bin $label)
-    b_label=$(pad_zero_pre $b_label 16)
-
-    output_inst "$b_op$b_rs$b_rt$b_label"
-}
-
-
-do_i_type_ls() {
-    echo 'I-type L/S' $op $rt $imm $rs
-}
-
 
 
 main() {
@@ -129,12 +112,12 @@ main() {
 	    'addi' | 'addiu' | 'andi' | 'ori' |\
             'slti' | 'sltiu'  | 'xori')
 		read -r _ rt rs imm _ <<< $fields
-		do_i_type_a	# I-type arithmetic
+		do_i_type	# I-type arithmetic
 		;;
 
 	    'beq' | 'bne')
 		read -r _ rs rt imm _ <<< $fields
-		do_i_type_a	# I-type branch 1
+		do_i_type	# I-type branch 1
 		;;
 
 	    'bgez' | 'bgtz'| 'blez' | 'bltz')
@@ -144,7 +127,7 @@ main() {
 		else
 		    rt='$0'
 		fi
-		do_i_type_a	# I-type branch 2
+		do_i_type	# I-type branch 2
 		;;
 
 	    'lb' | 'lbu' | 'lh' | 'lhu' | 'lw'  | 'lwcl' |\
@@ -157,12 +140,12 @@ main() {
 
 		read -r imm rs <<< $addr
 
-		do_i_type_a	# I-type load store
+		do_i_type	# I-type load store
 		;;
 	    'lui')
 		read -r _ rt imm <<< $fields
 		rs='$0'
-		do_i_type_a
+		do_i_type
 		;;
 	    
 	    *)
