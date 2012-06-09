@@ -94,6 +94,16 @@ do_i_type_a() {
     output_inst "$b_op$b_rs$b_rt$b_imm"
 }
 
+do_i_type_b1() {
+    b_op=$(opcode $op)
+    b_rs=$(regno $rs)
+    b_rt=$(regno $rt)
+    b_label=$(dec2bin $label)
+    b_label=$(pad_zero_pre $b_label 16)
+
+    output_inst "$b_op$b_rs$b_rt$b_label"
+}
+
 
 do_i_type_ls() {
     echo 'I-type L/S' $op $rt $imm $rs
