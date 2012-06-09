@@ -17,6 +17,24 @@ bin2hex() {
     bc <<< "ibase=2;obase=F;$1"
 }
 
+dec2bin() {
+	dec=$1
+	
+	# FIXME don't know how ot handle negetive numbers well
+	# yet. I'll need to store them as 2's complement
+	if [ $dec -lt 0 ]; then
+	    dec=$((-$dec))
+	    neg=1
+	else
+	    neg=0
+	fi
+
+	bin=$(bc <<< "obase=2;$dec")
+	# pad bin to 16 bits
+	pad_zero_pre $bin 16
+}
+
+
 # assume the input is segmented as 4x8
 inst_hex() {
     read -r s0 s1 s2 s3 s4 s5 s6 s7 <<< $1
@@ -43,23 +61,6 @@ pad_zero_pre() {
     echo "$t_pad$t_src"
 }
 
-dec2bin() {
-	dec=$1
-	
-	# FIXME don't know how ot handle negetive numbers well
-	# yet. I'll need to store them as 2's complement
-	if [ $dec -lt 0 ]; then
-	    dec=$((-$dec))
-	    neg=1
-	else
-	    neg=0
-	fi
-
-	bin=$(bc <<< "obase=2;$dec")
-	# pad bin to 16 bits
-	pad_zero_pre $bin 16
-}
-
 
 
 output_inst() {
@@ -82,7 +83,7 @@ do_r_type() {
     b_sa='00000'
     b_func=$(r_type_func $op)
 
-    output_inst "$b_op$b_rs$b_rt$b_sa$b_rd$b_func"    
+    output_inst "$b_op$b_rs$b_rt$b_rd$b_sa$b_func"
 }
 
 do_i_type_a() {
