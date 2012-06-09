@@ -9,4 +9,5 @@ blez $t2, 3
 bltz $t2, 3
 lw   $t2, 3($t1)
 lui  $t0, 3
-
+j    3
+jal  3

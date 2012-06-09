@@ -94,30 +94,43 @@ do_i_type() {
     output_inst "$b_op$b_rs$b_rt$b_imm"
 }
 
+do_j_type() {
+    b_op=$(opcode $op)
+    b_label=$(dec2bin $inst_body)
+    b_label=$(pad_zero_pre $b_label 26)
+
+    output_inst "$b_op$b_label"
+}
+
 
 main() {
 
 	fields=$(echo $inst | sed 's/\,//g')
-	read -r op _ <<< $fields
+	read -r op inst_body <<< $fields
 
 	case $op in
-	    'add' | 'addu' | 'and' | 'div'   | 'divu' |\
-	    'mfhi'| 'mflo' | 'mult'| 'multu' | 'or'   |\
-	    'slt' | 'sltu' | 'sll' | 'sllv'  | 'sra'  | 'srl' | 'srlv' |\
-	    'sub' | 'subu' | 'xor')
+	    'add' | 'addu' | 'and'  | 'break' | 'jalr' | 'jr'    | 'div' | 'divu' |\
+	    'mfhi'| 'mflo' | 'mthi' | 'mtlo'  | 'mult' | 'multu' | 'nor' | 'or'   |\
+	    'sll' | 'sllv' | 'slt'  | 'sltu'  | 'sra'  | 'srav'  | 'srl' | 'srlv' |\
+	    'sub' | 'subu' | 'syscall' | 'xor')
+		rs='0'
+		rt='0'
+		rd='0'
 		read -r _ rd rs rt _ <<< $fields
 		do_r_type
 		;;
 
+	    # I-type arithmetic
 	    'addi' | 'addiu' | 'andi' | 'ori' |\
-            'slti' | 'sltiu'  | 'xori')
+            'slti' | 'sltiu' | 'xori')
 		read -r _ rt rs imm _ <<< $fields
-		do_i_type	# I-type arithmetic
+		do_i_type	
 		;;
 
+    	    # I-type branch 1
 	    'beq' | 'bne')
 		read -r _ rs rt imm _ <<< $fields
-		do_i_type	# I-type branch 1
+		do_i_type
 		;;
 
 	    'bgez' | 'bgtz'| 'blez' | 'bltz')
@@ -146,6 +159,10 @@ main() {
 		read -r _ rt imm <<< $fields
 		rs='$0'
 		do_i_type
+		;;
+
+	    'j' | 'jal')
+		do_j_type
 		;;
 	    
 	    *)
