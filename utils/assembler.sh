@@ -24,6 +24,20 @@ inst_hex() {
     echo "$out"
 }
 
+# aguments
+#  $1: the string to be padded
+#  $2: the length of the padded result, MAX=32
+pad_zero_pre() {
+    t_src=$1
+    t_srclen=${#t_src}
+
+    # MAX=32
+    t_pad="00000000000000000000000000000000"
+    t_pad=${t_pad:0:$(($2 - $t_srclen))}
+
+    echo "$t_pad$t_src"
+}
+
 dec2bin() {
 	dec=$1
 	
@@ -39,12 +53,7 @@ dec2bin() {
 	bin=$(bc <<< "obase=2;$dec")
 
 	# pad bin to 16 bits
-	binlen=${#bin}
-	if [ $binlen -lt 16 ]; then
-	    pad="0000000000000000"
-	    pad=${pad:0:$((16 - $binlen))}
-	    bin=$pad$bin
-	fi
+	bin=$(pad_zero_pre $bin 16)
 
 	echo $bin
 }
