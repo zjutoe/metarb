@@ -22,12 +22,13 @@ inst_seg() {
 # assume the input is segmented as 4x8
 inst_hex() {
     read -r s0 s1 s2 s3 s4 s5 s6 s7 <<< $1
+    out=""
     for s in  $s0 $s1 $s2 $s3 $s4 $s5 $s6 $s7; do
 	h="$(./lua52 base_bin2hex.lua $s)"
-	inst_hex="$inst_hex$h"
+	out="$out$h"
     done
     
-    echo "$inst_hex"
+    echo "$out"
 }
 
 dec2bin() {
@@ -55,6 +56,17 @@ dec2bin() {
 	echo $bin
 }
 
+output_inst() {
+    inst_bin_full=$1
+    inst_bin_seg="$(cut -c 1-4   <<< $inst_bin_full) $(cut -c 5-8   <<< $inst_bin_full)\
+                  $(cut -c 9-12  <<< $inst_bin_full) $(cut -c 13-16 <<< $inst_bin_full)\
+                  $(cut -c 17-20 <<< $inst_bin_full) $(cut -c 21-24 <<< $inst_bin_full)\
+                  $(cut -c 25-28 <<< $inst_bin_full) $(cut -c 29-32 <<< $inst_bin_full)"
+    inst_hex_full=0x$(inst_hex "$inst_bin_seg")
+
+    echo $inst_bin_full -- $inst_bin_seg -- $inst_hex_full -- $inst
+}    
+
 do_r_type() {
     
     #echo "R-type" $op $rd  $rs $rt
@@ -65,13 +77,15 @@ do_r_type() {
     b_rd=$(regno $rd)
     b_sa='00000'
     b_func=$(r_type_func $op)
-    
-    inst="$b_op""$b_rs""$b_rt""$b_sa""$b_rd""$b_func"
-    segs=$(inst_seg $inst)
-    # inst_seg="$(cut -c 1-4 <<< $inst) $(cut -c 5-8 <<< $inst) $(cut -c 9-12 <<< $inst) $(cut -c 13-16 <<< $inst)\
-    #      $(cut -c 17-20 <<< $inst) $(cut -c 21-24 <<< $inst) $(cut -c 25-28 <<< $inst) $(cut -c 29-32 <<< $inst)"
 
-    echo $inst -- $segs -- 0x$(inst_hex "$segs")
+    output_inst "$b_op$b_rs$b_rt$b_sa$b_rd$b_func"
+    
+    # inst="$b_op""$b_rs""$b_rt""$b_sa""$b_rd""$b_func"
+    # segs=$(inst_seg $inst)
+    # # inst_seg="$(cut -c 1-4 <<< $inst) $(cut -c 5-8 <<< $inst) $(cut -c 9-12 <<< $inst) $(cut -c 13-16 <<< $inst)\
+    # #      $(cut -c 17-20 <<< $inst) $(cut -c 21-24 <<< $inst) $(cut -c 25-28 <<< $inst) $(cut -c 29-32 <<< $inst)"
+
+    # echo $inst -- $segs -- 0x$(inst_hex "$segs")
 }
 
 do_i_type_a() {
@@ -80,9 +94,11 @@ do_i_type_a() {
     b_rt=$(regno $rt)
     b_imm=$(dec2bin $imm)
 
-    inst="$b_op$b_rs$b_rt$b_imm"
-    segs=$(inst_seg $inst)
-    echo $inst -- $segs -- 0x$(inst_hex "$segs")
+    output_inst "$b_op$b_rs$b_rt$b_imm"
+
+    # inst="$b_op$b_rs$b_rt$b_imm"
+    # segs=$(inst_seg $inst)
+    # echo $inst -- $segs -- 0x$(inst_hex "$segs")
 }
 
 
