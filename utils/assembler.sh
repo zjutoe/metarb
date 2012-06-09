@@ -38,6 +38,10 @@ pad_zero_pre() {
     echo "$t_pad$t_src"
 }
 
+bin2hex() {
+    bc <<< "ibase=2;obase=F;$1"
+}
+
 dec2bin() {
 	dec=$1
 	
@@ -51,11 +55,8 @@ dec2bin() {
 	fi
 
 	bin=$(bc <<< "obase=2;$dec")
-
 	# pad bin to 16 bits
-	bin=$(pad_zero_pre $bin 16)
-
-	echo $bin
+	pad_zero_pre $bin 16
 }
 
 output_inst() {
@@ -148,7 +149,6 @@ main() {
 	esac
 
 }
-
 
 while read inst; do
     # echo $inst
