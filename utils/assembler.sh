@@ -94,7 +94,8 @@ do_i_type_a() {
     output_inst "$b_op$b_rs$b_rt$b_imm"
 }
 
-do_i_type_b1() {
+
+do_i_type_b() {
     b_op=$(opcode $op)
     b_rs=$(regno $rs)
     b_rt=$(regno $rt)
@@ -133,12 +134,17 @@ main() {
 
 	    'beq' | 'bne')
 		read -r _ rs rt label _ <<< $fields
-		do_i_type_b1	# I-type branch 1
+		do_i_type_b	# I-type branch 1
 		;;
 
 	    'bgez' | 'bgtz'| 'blez' | 'bltz')
  		read -r _ rs label _ <<< $fields
-		do_i_type_b2	# I-type branch 2
+		if [ $op = 'bgez' ]; then
+		    rt='$1'
+		else
+		    rt='$0'
+		fi
+		do_i_type_b	# I-type branch 2
 		;;
 
 	    'lb' | 'lbu' | 'lh' | 'lhu' | 'lw'  | 'lwcl' |\
@@ -151,7 +157,7 @@ main() {
 
 		read -r imm rs <<< $addr
 
-		do_i_type_ls	# I-type load store
+		do_i_type_a	# I-type load store
 		;;
 	    'lui')
 		;;
