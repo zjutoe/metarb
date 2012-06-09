@@ -14,7 +14,7 @@ opcode() {
 
 
 bin2hex() {
-    bc <<< "ibase=2;obase=F;$1"
+    echo "ibase=2;obase=F;$1" | bc
 }
 
 dec2bin() {
@@ -29,9 +29,7 @@ dec2bin() {
 	    neg=0
 	fi
 
-	bin=$(bc <<< "obase=2;$dec")
-	# pad bin to 16 bits
-	pad_zero_pre $bin 16
+	echo "obase=2;$dec" | bc
 }
 
 
@@ -91,6 +89,7 @@ do_i_type_a() {
     b_rs=$(regno $rs)
     b_rt=$(regno $rt)
     b_imm=$(dec2bin $imm)
+    b_imm=$(pad_zero_pre $b_imm 16)
 
     output_inst "$b_op$b_rs$b_rt$b_imm"
 }
