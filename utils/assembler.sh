@@ -14,22 +14,22 @@ opcode() {
 
 
 bin2hex() {
-    echo "ibase=2;obase=F;$1" | bc
+    echo "obase=16;ibase=2;$1" | bc
 }
 
+# arguments:
+#  $1: the src dec number
+#  $2: the data width
 dec2bin() {
 	dec=$1
+	t_width=$2
 	
-	# FIXME don't know how ot handle negetive numbers well
-	# yet. I'll need to store them as 2's complement
 	if [ $dec -lt 0 ]; then
-	    dec=$((-$dec))
-	    neg=1
+	    # 2's complement representation of negative number
+	    echo "obase=2;(2^$t_width)+($dec)" | bc
 	else
-	    neg=0
+	    echo "obase=2;$dec" | bc
 	fi
-
-	echo "obase=2;$dec" | bc
 }
 
 
@@ -88,16 +88,22 @@ do_i_type() {
     b_op=$(opcode $op)
     b_rs=$(regno $rs)
     b_rt=$(regno $rt)
-    b_imm=$(dec2bin $imm)
-    b_imm=$(pad_zero_pre $b_imm 16)
+    b_imm=$(dec2bin $imm 16)
+    b_imm=$(pad_zero_pre $b_imm 16) 
+    # It's OK to pad negative numbers since them are already garanteed
+    # to be 16 bits by dec2bin, i.e. no action will be taken for them
+    # here.
 
     output_inst "$b_op$b_rs$b_rt$b_imm"
 }
 
 do_j_type() {
     b_op=$(opcode $op)
-    b_label=$(dec2bin $inst_body)
+    b_label=$(dec2bin $inst_body 26)
     b_label=$(pad_zero_pre $b_label 26)
+    # It's OK to pad negative numbers since them are already garanteed
+    # to be 26 bits by dec2bin, i.e. no action will be taken for them
+    # here.
 
     output_inst "$b_op$b_label"
 }

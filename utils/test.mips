@@ -1,4 +1,5 @@
-addi $t0, $zero, 1
+addi $t0, $zero, -1
+addi $t5, $zero, -8
 addi $t1, $zero, 2
 add  $t2, $t0, $t1
 beq  $t2, $t0, 3
