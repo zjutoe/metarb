@@ -75,7 +75,7 @@ inline void set_reg(core_p core, int rid, uint32_t v)
 // the operations below are routine for all R-type instructions
 #define R_TYPE_EXEC_TEMPLATE(core, inst)	\
 	int op, rs, rt, rd, sa, func;		\
-	uint32_t s, t;				\
+	int32_t s, t;				\
 	do {					\
 		op   = OP(inst);		\
 		rs   = RS(inst);		\
@@ -94,6 +94,12 @@ inline void set_reg(core_p core, int rid, uint32_t v)
 
 
 // add $d, $s, $t  --  $d = $s + $t FIXME handle overflow
+//    temp <- (GPR[rs]31||GPR[rs]31..0) + (GPR[rt]31||GPR[rt]31..0) 
+//    if temp32 != temp31 then
+//        SignalException(IntegerOverflow)
+//    else
+//        GPR[rd] <- temp
+//    endif
 inline int exec_ADD(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -103,25 +109,27 @@ inline int exec_ADD(core_p core, inst_t inst)
 	// with the ADD instruction. I.e. the unspecified fields be
 	// all zero's.
 
-	// ADD treats the operands as signed values
-	int32_t ss = s;
-	int32_t st = t;
+	int64_t ls = s;
+	uint64_t lus = ls;
+	lus &= 0x00000001FFFFFFFF;
 
-	uint64_t d = ss + st;
+	int64_t lt = t;
+	uint64_t lut = lt;
+	lut &= 0x00000001FFFFFFFF;
 
-	// a trick to test overflow. TODO Well, I learn this trick
-	// from the SPEC, but don't understand it very well.
-	uint32_t test_bits = (d >> 31) & 0x03;
-	if (test_bits!=0 && test_bits!=0x03)
-		set_reg(core, REG_OVERFLOW, 1); //FIXME spec says need
-						//to raise an
-						//exception
-	
+	uint64_t lud = lus + lut;
+
+	int test32 = (lud<<31)>>63;
+	int test31 = (lud<<32)>>63;
+	if (test32 != test31)
+		//FIXME spec says need to raise an exception
+		set_reg(core, REG_OVERFLOW, 1);
+
+	int32_t d = lud;
 	set_reg(core, rd, d);
 
 	return 0;
 }
-
 
 
 // addu $d, $s, $t  --  $d = $s + $t
@@ -160,12 +168,8 @@ inline int exec_DIV(core_p core, inst_t inst)
 
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 
-	// DIV treats the operands as signed values
-	int32_t ss = s;
-	int32_t st = t;
-
-	int32_t lo = ss / st;
-	int32_t hi = ss % st;
+	int32_t lo = s / t;
+	int32_t hi = s % t;
 	set_reg(core, REG_LO, lo);
 	set_reg(core, REG_HI, hi);
 
@@ -179,8 +183,11 @@ inline int exec_DIVU(core_p core, inst_t inst)
 
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 
-	uint32_t lo = s / t;
-	uint32_t hi = s % t;
+	uint32_t us = s;
+	uint32_t ut = t;
+
+	uint32_t lo = us / ut;
+	uint32_t hi = us % ut;
 	set_reg(core, REG_LO, lo);
 	set_reg(core, REG_HI, hi);
 
@@ -217,9 +224,6 @@ inline int exec_MULT(core_p core, inst_t inst)
 
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 
-	int32_t ss = s;
-	int32_t st = t;
-
 	uint32_t lo = s * t;
 	uint32_t hi = (s * t)>>32;
 	set_reg(core, REG_LO, lo);
@@ -236,11 +240,11 @@ inline int exec_MULTU(core_p core, inst_t inst)
 
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 
-	uint32_t ss = s;
-	uint32_t st = t;
+	uint32_t us = s;
+	uint32_t ut = t;
 
-	uint32_t lo = s * t;
-	uint32_t hi = (s * t)>>32;
+	uint32_t lo = us * ut;
+	uint32_t hi = (us * ut)>>32;
 	set_reg(core, REG_LO, lo);
 	set_reg(core, REG_HI, hi);
 }
@@ -278,10 +282,7 @@ inline int exec_SLT(core_p core, inst_t inst)
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 	// TODO validate the instruction
 
-	int32_t ss = s;
-	int32_t st = t;
-	
-	uint32_t d = ss < st;
+	uint32_t d = s < t;
 	set_reg(core, rd, d);
 
 	return 0;
@@ -296,7 +297,10 @@ inline int exec_SLTU(core_p core, inst_t inst)
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 	// TODO validate the instruction
 
-	uint32_t d = s < t;
+	uint32_t us = s;
+	uint32_t ut = t;
+
+	uint32_t d = us < ut;
 	set_reg(core, rd, d);
 
 	return 0;
@@ -356,7 +360,8 @@ inline int exec_SRL(core_p core, inst_t inst)
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 	// TODO validate the instruction
 
-	uint32_t d = t >> sa;
+	uint32_t ut = t;
+	uint32_t d = ut >> sa;
 	set_reg(core, rd, d);
 
 	return 0;
@@ -371,7 +376,8 @@ inline int exec_SRLV(core_p core, inst_t inst)
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 	// TODO validate the instruction
 
-	uint32_t d = t >> (s & 0x1F);
+	uint32_t ut = t;
+	uint32_t d = ut >> (s & 0x1F);
 	set_reg(core, rd, d);
 
 	return 0;
@@ -379,6 +385,12 @@ inline int exec_SRLV(core_p core, inst_t inst)
 
 
 // sub $d, $s, $t  --  $d = $s - $t FIXME handle overflow
+// temp <- (GPR[rs]31||GPR[rs]31..0) - (GPR[rt]31||GPR[rt]31..0)
+// if temp32 != temp31 then
+//       SignalException(IntegerOverflow)
+// else
+//       GPR[rd] <-temp31..0 
+// endif
 inline int exec_SUB(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -388,20 +400,23 @@ inline int exec_SUB(core_p core, inst_t inst)
 	// with the ADD instruction. I.e. the unspecified fields be
 	// all zero's.
 
-	// ADD treats the operands as signed values
-	int32_t ss = s;
-	int32_t st = t;
+	int64_t ls = s;
+	uint64_t lus = ls;
+	lus &= 0x00000001FFFFFFFF;
 
-	uint64_t d = ss - st;
+	int64_t lt = t;
+	uint64_t lut = lt;
+	lut &= 0x00000001FFFFFFFF;
 
-	// a trick to test overflow. TODO Well, I learn this trick
-	// from the SPEC, but don't understand it very well.
-	uint32_t test_bits = (d >> 31) & 0x03;
-	if (test_bits!=0 && test_bits!=0x03)
-		set_reg(core, REG_OVERFLOW, 1); //FIXME spec says need
-						//to raise an
-						//exception
-	
+	uint64_t lud = lus - lut;
+
+	int test32 = (lud<<31)>>63;
+	int test31 = (lud<<32)>>63;
+	if (test32 != test31)
+		//FIXME spec says need to raise an exception
+		set_reg(core, REG_OVERFLOW, 1);
+
+	int32_t d = lud;
 	set_reg(core, rd, d);
 
 	return 0;
@@ -427,7 +442,7 @@ inline int exec_SUBU(core_p core, inst_t inst)
 // TODO R_SYSCALL system call
 
 
-// and $d, $s, $t  --  $d = $s & $t
+// xor $d, $s, $t  --  $d = $s ^ $t
 inline int exec_XOR(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -446,8 +461,8 @@ inline int exec_XOR(core_p core, inst_t inst)
 
 #define I_TYPE_EXEC_TEMPLATE(core, inst)	\
 	int op, rs, rt;				\
-	uint16_t imm;				\
-	uint32_t s;				\
+	int16_t imm;				\
+	int32_t s;				\
 	do {					\
 		op   = OP(inst);		\
 		rs   = RS(inst);		\
@@ -466,21 +481,24 @@ inline int exec_ADDI(core_p core, inst_t inst)
 
 	I_TYPE_EXEC_TEMPLATE(core, inst);
 
-	// ADD treats the operands as signed values
+	int64_t ls = s;
+	uint64_t lus = ls;
+	lus &= 0x00000001FFFFFFFF;
 
-	int32_t ss   = s;
-	int32_t simm = imm;
-	
-	uint64_t t = ss + simm;
+	int64_t limm = imm;
+	uint64_t luimm = limm;
+	luimm &= 0x00000001FFFFFFFF;
 
-	// a trick to test overflow. TODO Well, I learn this trick
-	// from the SPEC, but don't understand it very well.
-	uint32_t test_bits = (t >> 31) & 0x03;
-	if (test_bits!=0 && test_bits!=0x03)
-		set_reg(core, REG_OVERFLOW, 1); //FIXME spec says need
-						//to raise an
-						//exception
-	
+	uint64_t lut = lus + luimm;
+
+	int test32 = (lut<<31)>>63;
+	int test31 = (lut<<32)>>63;
+	if (test32 != test31)
+		//FIXME spec says need to raise an exception
+		set_reg(core, REG_OVERFLOW, 1);
+
+	int32_t t = lut;
+
 	set_reg(core, rt, t);
 
 	return 0;
@@ -494,12 +512,9 @@ inline int exec_ADDIU(core_p core, inst_t inst)
 
 	I_TYPE_EXEC_TEMPLATE(core, inst);
 
-	// ADD treats the operands as signed values
+	uint32_t t = s + imm;
 
-	int32_t ss   = s;
-	int32_t simm = imm;
-	
-	uint32_t t = ss + simm;
+	// DON'T check overflow in ADDIU
 
 	set_reg(core, rt, t);
 
@@ -550,9 +565,7 @@ inline int exec_SLTI(core_p core, inst_t inst)
 
 	I_TYPE_EXEC_TEMPLATE(core, inst);
 
-	int32_t ss = s;
-
-	uint32_t t = ss < imm;
+	uint32_t t = s < imm;
 	set_reg(core, rt, t);
 
 	return 0;
@@ -564,7 +577,11 @@ inline int exec_SLTIU(core_p core, inst_t inst)
 
 	I_TYPE_EXEC_TEMPLATE(core, inst);
 
-	uint32_t t = s < imm;
+	int32_t simm = imm;
+	uint32_t uimm = simm;
+	uint32_t us = s;
+	
+	uint32_t t = us < uimm;
 	set_reg(core, rt, t);
 
 	return 0;
