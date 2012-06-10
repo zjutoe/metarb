@@ -224,8 +224,9 @@ inline int exec_MULT(core_p core, inst_t inst)
 
 	R_TYPE_EXEC_TEMPLATE(core, inst);
 
-	uint32_t lo = s * t;
-	uint32_t hi = (s * t)>>32;
+	uint64_t res = s * t;
+	uint32_t lo = res;
+	uint32_t hi = res >> 32;
 	set_reg(core, REG_LO, lo);
 	set_reg(core, REG_HI, hi);
 
@@ -243,8 +244,9 @@ inline int exec_MULTU(core_p core, inst_t inst)
 	uint32_t us = s;
 	uint32_t ut = t;
 
-	uint32_t lo = us * ut;
-	uint32_t hi = (us * ut)>>32;
+	uint64_t res = us * ut;
+	uint32_t lo = res;
+	uint32_t hi = res >> 32;
 	set_reg(core, REG_LO, lo);
 	set_reg(core, REG_HI, hi);
 }
@@ -547,18 +549,6 @@ inline int exec_ORI(core_p core, inst_t inst)
 }
 
 
-inline int exec_XORI(core_p core, inst_t inst)
-{
-	LOG_T;
-
-	I_TYPE_EXEC_TEMPLATE(core, inst);
-
-	uint32_t t = s ^ imm;
-	set_reg(core, rt, t);
-
-	return 0;
-}
-
 inline int exec_SLTI(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -570,6 +560,7 @@ inline int exec_SLTI(core_p core, inst_t inst)
 
 	return 0;
 }
+
 
 inline int exec_SLTIU(core_p core, inst_t inst)
 {
@@ -583,6 +574,114 @@ inline int exec_SLTIU(core_p core, inst_t inst)
 	
 	uint32_t t = us < uimm;
 	set_reg(core, rt, t);
+
+	return 0;
+}
+
+
+inline int exec_XORI(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t t = s ^ imm;
+	set_reg(core, rt, t);
+
+	return 0;
+}
+
+
+inline int exec_BEQ(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	int32_t t = get_reg(core, rt);
+	uint32_t current_pc = get_reg(core, REG_PC);
+	int32_t offset = imm;	//to sign extend imm
+	if (s == t) {
+		set_reg(core, REG_PC, current_pc + (offset << 2));
+	}
+
+	return 0;
+}
+
+inline int exec_BNE(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	int32_t t = get_reg(core, rt);
+	uint32_t current_pc = get_reg(core, REG_PC);
+	int32_t offset = imm;	//to sign extend imm
+	if (s != t) {
+		set_reg(core, REG_PC, current_pc + (offset << 2));
+	}
+
+	return 0;
+}
+
+
+inline int exec_BGEZ(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t current_pc = get_reg(core, REG_PC);
+	int32_t offset = imm;	//to sign extend imm
+	if (s >= 0) {
+		set_reg(core, REG_PC, current_pc + (offset << 2));
+	}
+
+	return 0;
+}
+
+
+inline int exec_BGTZ(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t current_pc = get_reg(core, REG_PC);
+	int32_t offset = imm;	//to sign extend imm
+	if (s > 0) {
+		set_reg(core, REG_PC, current_pc + (offset << 2));
+	}
+
+	return 0;
+}
+
+inline int exec_BLEZ(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t current_pc = get_reg(core, REG_PC);
+	int32_t offset = imm;	//to sign extend imm
+	if (s <= 0) {
+		set_reg(core, REG_PC, current_pc + (offset << 2));
+	}
+
+	return 0;
+}
+
+inline int exec_BLTZ(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t current_pc = get_reg(core, REG_PC);
+	int32_t offset = imm;	//to sign extend imm
+	if (s < 0) {
+		set_reg(core, REG_PC, current_pc + (offset << 2));
+	}
 
 	return 0;
 }
