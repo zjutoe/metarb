@@ -1,9 +1,9 @@
 CFLAGS := -DDEBUG
 
-OBJS := main.o core.o utils.o test.o
+OBJS := main.o core.o mem.o utils.o test.o
 
 sim: $(OBJS)
-	cc $(CFLAGS) -o sim $(OBJS)
+	cc $(CFLAGS) -o sim $(OBJS) /usr/local/lib/liblua.a
 
 # dependencies on source files and header files
 -include $(OBJS:.o=.d)

@@ -3,12 +3,14 @@
 
 #include "core.h"
 #include "inst.h"
+#include "mem.h"
 #include "logging.h"
 #include "test.h"
 
 
 #define TEST_PROGRAM_LEN 128
 static uint32_t test_program_bin[TEST_PROGRAM_LEN] = {
+	
 	0x014b4820,	// add $t1, $t2, $t3
 	0x014b4820,	// add $t1, $t2, $t3
 	0x016c5020,	// add $t2, $t3, $t4
@@ -21,6 +23,17 @@ int base_test()
 	LOG_T;
 
 	int ret;
+	int i;
+
+	mem_init();
+	for (i=0; i<10; i++)
+		mem_write(i, i*2);
+	for (i=0; i<10; i++) 
+		printf("0x%x ", mem_read(i));
+	printf("\n");
+	mem_fini();
+	return 0;
+	
 
 	init_cores(1);
 	core_p core = get_core(0);
@@ -28,7 +41,7 @@ int base_test()
 	randomize_core(core);
 
 	uint32_t inst;
-	int i=0;
+	i=0;
 	do {
 		inst = test_program_bin[i];
 		ret = test_r_type(core, inst);
