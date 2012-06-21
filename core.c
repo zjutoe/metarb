@@ -686,3 +686,27 @@ inline int exec_BLTZ(core_p core, inst_t inst)
 	return 0;
 }
 
+int32_t byte_of_word(uint32_t data, int i)
+{
+	int sl = (3 - i) << 3;
+	int8_t d = (data << sl) >> 24;
+	return d;
+}
+
+// TODO support both little endian and big endian
+inline int exec_LB(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t current_pc = get_reg(core, REG_PC);
+	int32_t offset = imm;	//to sign extend imm
+	uint32_t addr = offset + s;
+
+	uint32_t data = mem_read(addr & 0xFFFFFFFC);
+	int32_t datab = byte_of_word(data, addr % 4); // assume little endian now
+	set_reg(core, rt, datab);
+
+	return 0;
+}

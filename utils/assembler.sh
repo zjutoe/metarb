@@ -1,15 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 regno() {
-    ./lua52 regno.lua $1
+    lua regno.lua $1
 }
 
 r_type_func() {
-    ./lua52 r_type_func.lua $1
+    lua r_type_func.lua $1
 }
 
 opcode() {
-    ./lua52 opcode.lua $1
+    lua opcode.lua $1
 }
 
 

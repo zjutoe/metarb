@@ -10,10 +10,8 @@
 
 #define TEST_PROGRAM_LEN 128
 static uint32_t test_program_bin[TEST_PROGRAM_LEN] = {
-	
-	0x014b4820,	// add $t1, $t2, $t3
-	0x014b4820,	// add $t1, $t2, $t3
-	0x016c5020,	// add $t2, $t3, $t4
+	0x20090002,     // addi $t1, $zero, 2
+	0x812A0003,	// lb   $t2, 3($t1)
 	0x0		// Noop FIXME should use "halt" to terminate,
 			// but don't find the inst in the spec yet.
 };
@@ -31,14 +29,20 @@ int base_test()
 	for (i=0; i<10; i++) 
 		printf("0x%x ", mem_read(i));
 	printf("\n");
-	mem_fini();
-	return 0;
-	
 
 	init_cores(1);
 	core_p core = get_core(0);
-
 	randomize_core(core);
+
+	exec_ADDI(core, test_program_bin[0]);
+	exec_LB(core, test_program_bin[1]);
+	printf("$t1=%d $t2=%d\n", 
+	       get_reg(core, 9),
+	       get_reg(core, 10));
+
+	mem_fini();
+	return 0;
+
 
 	uint32_t inst;
 	i=0;
