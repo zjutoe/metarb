@@ -26,6 +26,7 @@ int base_test()
 	mem_init();
 	for (i=0; i<10; i++)
 		mem_write(i, i*2);
+	mem_write(4, 0x88888888);
 	for (i=0; i<10; i++) 
 		printf("0x%x ", mem_read(i));
 	printf("\n");
@@ -36,7 +37,7 @@ int base_test()
 
 	exec_ADDI(core, test_program_bin[0]);
 	exec_LB(core, test_program_bin[1]);
-	printf("$t1=%d $t2=%d\n", 
+	printf("$t1=0x%x $t2=0x%x\n", 
 	       get_reg(core, 9),
 	       get_reg(core, 10));
 

@@ -6,6 +6,8 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+#include "logging.h"
+
 static lua_State *L = NULL;
 
 // to create a global table that emulate the memory
@@ -46,13 +48,15 @@ static uint32_t getfield (lua_State *L, uint32_t key) {
 	lua_gettable(L, -2);	/* get mem[key] */
 	if (!lua_isnumber(L, -1))
 		luaL_error(L, "invalid val");
-	val = (int)lua_tonumber(L, -1);
+	val = (uint32_t)lua_tonumber(L, -1);
 	lua_pop(L, 1);		/* remove the val */
 	return val;
 }
 
  /* assume that table is on the stack top */
 static void setfield (lua_State *L, uint32_t key, uint32_t val) {
+	LOG_D("key=0x%x, val=0x%x", key, val);
+
 	lua_pushinteger(L, key);
 	lua_pushinteger(L, val);
 	
@@ -61,13 +65,18 @@ static void setfield (lua_State *L, uint32_t key, uint32_t val) {
 
 uint32_t  mem_read(uint32_t addr)
 {
-	return getfield(L, addr);
-	return 0;
+	uint32_t val = getfield(L, addr);
+	LOG_D("addr=0x%d, val=0x%x", addr, val);
+	
+	return val;
 }
 
 int mem_write(uint32_t addr, uint32_t val)
 {
+	LOG_D("addr=0x%x, val=0x%x", addr, val);
+
 	setfield(L, addr, val);
+	return 0;
 }
 
 

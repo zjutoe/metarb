@@ -705,7 +705,9 @@ inline int exec_LB(core_p core, inst_t inst)
 	uint32_t addr = offset + s;
 
 	uint32_t data = mem_read(addr & 0xFFFFFFFC);
+	LOG_D("loaded word=0x%x", data);
 	int32_t datab = byte_of_word(data, addr % 4); // assume little endian now
+	LOG_D("loaded byte=0x%x", datab);
 	set_reg(core, rt, datab);
 
 	return 0;
