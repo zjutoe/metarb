@@ -1,4 +1,4 @@
-CFLAGS := -DDEBUG -I/usr/include/lua5.1
+CFLAGS := -DDEBUG
 
 OBJS := main.o core.o mem.o utils.o test.o
 
