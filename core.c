@@ -693,6 +693,14 @@ int32_t byte_of_word(uint32_t data, int i)
 	return d;
 }
 
+int32_t half_of_word(uint32_t data, int i)
+{
+	int sl = (1 - i) << 4;
+	int8_t d = (data << sl) >> 16;
+	return d;
+}
+
+
 // TODO support both little endian and big endian
 inline int exec_LB(core_p core, inst_t inst)
 {
@@ -700,7 +708,6 @@ inline int exec_LB(core_p core, inst_t inst)
 
 	I_TYPE_EXEC_TEMPLATE(core, inst);
 
-	uint32_t current_pc = get_reg(core, REG_PC);
 	int32_t offset = imm;	//to sign extend imm
 	uint32_t addr = offset + s;
 
@@ -720,7 +727,6 @@ inline int exec_LBU(core_p core, inst_t inst)
 
 	I_TYPE_EXEC_TEMPLATE(core, inst);
 
-	uint32_t current_pc = get_reg(core, REG_PC);
 	int32_t offset = imm;	//to sign extend imm
 	uint32_t addr = offset + s;
 
@@ -740,15 +746,91 @@ inline int exec_LH(core_p core, inst_t inst)
 
 	I_TYPE_EXEC_TEMPLATE(core, inst);
 
-	uint32_t current_pc = get_reg(core, REG_PC);
 	int32_t offset = imm;	//to sign extend imm
 	uint32_t addr = offset + s;
 
 	uint32_t data = mem_read(addr & 0xFFFFFFFC);
 	LOG_D("loaded word=0x%x", data);
-	uint32_t datab = byte_of_word(data, addr % 4); // assume little endian now
-	LOG_D("loaded byte=0x%x", datab);
-	set_reg(core, rt, datab);
+	int32_t datah = half_of_word(data, addr % 2); // assume little endian now
+	LOG_D("loaded byte=0x%x", datah);
+	set_reg(core, rt, datah);
+
+	return 0;
+}
+
+// TODO support both little endian and big endian
+inline int exec_LHU(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	int32_t offset = imm;	//to sign extend imm
+	uint32_t addr = offset + s;
+
+	uint32_t data = mem_read(addr & 0xFFFFFFFC);
+	LOG_D("loaded word=0x%x", data);
+	uint32_t datah = half_of_word(data, addr % 2); // assume little endian now
+	LOG_D("loaded byte=0x%x", datah);
+	set_reg(core, rt, datah);
+
+	return 0;
+}
+
+inline int exec_LUI(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t data = imm << 16;
+	LOG_D("loaded data=0x%x", data);
+	set_reg(core, rt, data);
+
+	return 0;
+}
+
+// load word
+inline int exec_LW(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	int32_t offset = imm;	//to sign extend imm
+	uint32_t addr = offset + s;
+
+	// FIXME spec says if ( addr & 0xFFFFFFFC ) != addr we should
+	// raise an address error exception
+	uint32_t data = mem_read(addr & 0xFFFFFFFC);
+	LOG_D("loaded word=0x%x", data);
+	set_reg(core, rt, data);
+
+	return 0;
+}
+
+// TODO exec_LWC1
+
+// store a byte
+inline int exec_SB(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	int32_t offset = imm;	//to sign extend imm
+	uint32_t addr = offset + s;
+
+	uint32_t data = mem_read(addr & 0xFFFFFFFC);
+	LOG_D("loaded word=0x%x", data);
+	uint8_t b = get_reg(core, rt) & 0xFF; //get the least-significant 8 bits
+	int lshift = (addr % 4) << 3;
+
+	data &= ~(0xFF << lshift); //clear the corresponding byte
+	data |= b << lshift;	   //set the corresponding byte
+
+	LOG_D("to be written byte=0x%x", data);
+	set_reg(core, rt, data);
 
 	return 0;
 }
