@@ -76,9 +76,16 @@ typedef uint32_t inst_t;
 #define OP_JAL       0x03	/* jump and link */
 
 #define OP_LB        0x20	/* load byte */
+#define OP_LBU       0x24	/* load byte unsigned */
+#define OP_LH        0x21	/*  */
+#define OP_LHU       0x25	/*  */
 #define OP_LUI       0x0F	/* load upper immediate */
 #define OP_LW        0x23	/* load word */
-#define OP_SW        0x2B	/* store word */
+#define OP_LWCL      0x31	/* load word */
 #define OP_SB        0x28	/* store byte */
+#define OP_SH        0x29	/*  */
+#define OP_SW        0x2B	/* store word */
+#define OP_SWCL      0x39	/*  */
+
 
 #endif	/* _INST_H_ */

@@ -712,3 +712,44 @@ inline int exec_LB(core_p core, inst_t inst)
 
 	return 0;
 }
+
+// TODO support both little endian and big endian
+inline int exec_LBU(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t current_pc = get_reg(core, REG_PC);
+	int32_t offset = imm;	//to sign extend imm
+	uint32_t addr = offset + s;
+
+	uint32_t data = mem_read(addr & 0xFFFFFFFC);
+	LOG_D("loaded word=0x%x", data);
+	uint32_t datab = byte_of_word(data, addr % 4); // assume little endian now
+	LOG_D("loaded byte=0x%x", datab);
+	set_reg(core, rt, datab);
+
+	return 0;
+}
+
+// TODO support both little endian and big endian
+inline int exec_LH(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	uint32_t current_pc = get_reg(core, REG_PC);
+	int32_t offset = imm;	//to sign extend imm
+	uint32_t addr = offset + s;
+
+	uint32_t data = mem_read(addr & 0xFFFFFFFC);
+	LOG_D("loaded word=0x%x", data);
+	uint32_t datab = byte_of_word(data, addr % 4); // assume little endian now
+	LOG_D("loaded byte=0x%x", datab);
+	set_reg(core, rt, datab);
+
+	return 0;
+}
+
