@@ -829,9 +829,55 @@ inline int exec_SB(core_p core, inst_t inst)
 	data &= ~(0xFF << lshift); //clear the corresponding byte
 	data |= b << lshift;	   //set the corresponding byte
 
-	LOG_D("to be written byte=0x%x", data);
-	set_reg(core, rt, data);
+	LOG_D("write back word=0x%x", data);
+	mem_write(addr & 0xFFFFFFFC, data);
 
 	return 0;
 }
 
+
+inline int exec_SH(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	int32_t offset = imm;	//to sign extend imm
+	uint32_t addr = offset + s;
+
+	uint32_t data = mem_read(addr & 0xFFFFFFFC);
+	LOG_D("loaded word=0x%x", data);
+	uint8_t b = get_reg(core, rt) & 0xFFFF; //get the least-significant 16 bits
+	int lshift = (addr % 2) << 4;
+
+	data &= ~(0xFFFF << lshift); //clear the corresponding byte
+	data |= b << lshift;	   //set the corresponding byte
+
+	LOG_D("write back word=0x%x", data);
+	mem_write(addr & 0xFFFFFFFC, data);
+
+	return 0;
+}
+
+// store word
+inline int exec_SW(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	int32_t offset = imm;	//to sign extend imm
+	uint32_t addr = offset + s;
+
+	// FIXME spec says if ( addr & 0xFFFFFFFC ) != addr we should
+	// raise an address error exception
+	uint32_t data = get_reg(core, rt);
+	mem_write(addr & 0xFFFFFFFC, data);
+
+	LOG_D("written word=0x%x", data);
+
+	return 0;
+}
+
+
+// TODO swc1
