@@ -1,3 +1,5 @@
+* resume the work!
+
 * core should generate logic memory address
 
 * use lua to construct memory with table, and access the memory from C
