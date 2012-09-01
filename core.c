@@ -194,6 +194,12 @@ inline int exec_DIVU(core_p core, inst_t inst)
 	return 0;
 }
 
+inline int exec_R(core_p core, inst_t inst)
+{
+	
+	return 0;
+}
+
 
 inline int exec_MFHI(core_p core, inst_t inst)
 {
@@ -686,6 +692,15 @@ inline int exec_BLTZ(core_p core, inst_t inst)
 	return 0;
 }
 
+inline int exec_BZ(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	I_TYPE_EXEC_TEMPLATE(core, inst);
+
+	return 0;
+}
+
 int32_t byte_of_word(uint32_t data, int i)
 {
 	int sl = (3 - i) << 3;
@@ -879,5 +894,43 @@ inline int exec_SW(core_p core, inst_t inst)
 	return 0;
 }
 
+int exec_J(core_p core, inst_t inst)
+{
+	return 0;
+}
+
+int exec_JAL(core_p core, inst_t inst)
+{
+	return 0;
+}
+
+int exec_LWCL(core_p core, inst_t inst)
+{
+	return 0;
+}
+
+int exec_SWCL(core_p core, inst_t inst)
+{
+	return 0;
+}
+
 
 // TODO swc1
+
+int inst_dispatch(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	int op = OP(inst);
+
+	switch(op) {
+#include "inst_dispatch_switch.h"
+	default:
+		LOG_E("invalid OP");
+		return -1;
+	}
+
+	return 0;
+}
+
+

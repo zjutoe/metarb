@@ -15,6 +15,9 @@ sim: $(OBJS)
 	gcc -c $(CFLAGS) $*.c -o $*.o
 	gcc -MM $(CFLAGS) $*.c > $*.d
 
+inst_dispatch_switch.h: inst.h
+	./gen_dispatch.sh > inst_dispatch_switch.h
+
 
 .PHONY: clean tags
 
