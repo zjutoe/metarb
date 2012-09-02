@@ -194,13 +194,6 @@ inline int exec_DIVU(core_p core, inst_t inst)
 	return 0;
 }
 
-inline int exec_R(core_p core, inst_t inst)
-{
-	
-	return 0;
-}
-
-
 inline int exec_MFHI(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -448,6 +441,12 @@ inline int exec_SUBU(core_p core, inst_t inst)
 
 
 // TODO R_SYSCALL system call
+inline int exec_SYSCALL(core_p core, inst_t inst)
+{
+	LOG_T;
+
+	return 0;
+}
 
 
 // xor $d, $s, $t  --  $d = $s ^ $t
@@ -917,6 +916,22 @@ int exec_SWCL(core_p core, inst_t inst)
 
 // TODO swc1
 
+inline int exec_R(core_p core, inst_t inst)
+{
+	LOG_T;
+	int func = FUNC(inst);
+
+	switch(func) {
+		#include "inst_dispatch_switch_r.h"
+	default:
+		LOG_E("invalid FUNC");
+		return -1;
+	}
+	
+	return 0;
+}
+
+
 int inst_dispatch(core_p core, inst_t inst)
 {
 	LOG_T;
@@ -932,5 +947,6 @@ int inst_dispatch(core_p core, inst_t inst)
 
 	return 0;
 }
+
 
 

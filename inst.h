@@ -39,11 +39,11 @@ typedef uint32_t inst_t;
 #define    R_MFLO    0x12	/* move from LO */
 #define    R_MULT    0x18	/* multiply signed */
 #define    R_MULTU   0x19	/* multiply unsigned */
-#define    R_NOOP    0x00	/* no-op FIXME shall we say noop is R-style? */
 #define    R_OR      0x25	/* bitwise or */
 #define    R_SLT     0x2A	/* set on less than (signed) */
 #define    R_SLTU    0x2B	/* set on less than immediate (signed) */
 #define    R_SLL     0x00	/* shift left logical */
+//#define    R_NOOP    0x00	/* no-op is SLL $0 $0 0 */
 #define    R_SLLV    0x04	/* shift left logical variable */
 #define    R_SRA     0x03	/* shift right arithmetic */
 #define    R_SRL     0x02	/* shift right logic  */
